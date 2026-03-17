@@ -1,29 +1,13 @@
-/* arcade.css — Arcade PNG layering, screen/spider/button positions.
-   All coordinates are PERCENTAGES of the arcade container so the whole
-   machine scales at any size.
+/* arcade.css — Arcade cabinet layout using split top/bottom images.
+   The screen region sits naturally between arcade_top.png and arcade_bottom.png
+   in normal document flow — no percentage guessing needed.
+   Buttons/spider remain absolutely positioned over the bottom image.
 
-   IMPORTANT: Every % value below is a PLACEHOLDER tuned to a rough estimate.
-   Open index.html in a browser, inspect the PNG, and adjust until
-   each overlay aligns with its target region in the artwork.
+   Image dimensions (from source PNG 3856×8368):
+     arcade_top.png:    3856 × 1925  (aspect-ratio: 3856/1925)
+     screen hole:       3856 × 2134  (aspect-ratio: 3856/2134)
+     arcade_bottom.png: 3856 × 4309  (aspect-ratio: 3856/4309)
 */
-
-/* ---------------------------------------------------------------------------
-   Container — fixed aspect ratio, max 600 px wide, centred
-   --------------------------------------------------------------------------- */
-
-#arcade-container {
-  position: relative;
-  width: 100vw;
-  max-width: 100vw;
-  aspect-ratio: 3 / 5;
-  margin: 0 auto;
-  user-select: none;
-  min-height: 100vh;
-}
-
-@media (min-width: 1280px) {
-  #arcade-container { width: 100vw; max-width: 100vw; }
-}
 
 html, body {
   width: 100%;
@@ -36,56 +20,49 @@ html, body {
 
 /* Hide scrollbar while keeping page scrollable */
 html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-html {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+body::-webkit-scrollbar { width: 0; height: 0; }
+html { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ---------------------------------------------------------------------------
+   Container — height is set by stacked content, not aspect-ratio
+   --------------------------------------------------------------------------- */
+
+#arcade-container {
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  display: block;
+  user-select: none;
 }
 
-#arcade-machine-img {
-  position: absolute;
-  top: -4%;
-  left: 0;
-  width: 100%;
-  height: calc(100% + 10px);
-  object-fit: cover;
-  object-position: top center;
+/* ---------------------------------------------------------------------------
+   Top and bottom cabinet images — full width, natural height
+   --------------------------------------------------------------------------- */
+
+#arcade-top,
+#arcade-bottom {
   display: block;
+  width: 100%;
+  height: auto;
   pointer-events: none;
 }
 
 /* ---------------------------------------------------------------------------
-   Screen region — sits inside the gray screen area of the PNG
-   PLACEHOLDER: fine-tune these four values by inspecting the PNG in-browser.
+   Screen region — sits between the two images in normal flow.
+   Height is derived from the exact pixel ratio of the screen hole.
+   Width is 100% because the transparent hole spans the full image width.
    --------------------------------------------------------------------------- */
 
-  /* 
-  The good values:
-  top:    33%;
-  left:   27%;
-  width:  42%;
-  height: 17%; */
 #screen-region {
-  position: absolute;
-  top:    30%;
-  left:   12%;
-  width:  73%;
-  height: 29%;
+  display: block;
+  width: 74.6%;        /* cabinet screen hole width: 2875px / 3856px */
+  margin-left: 11.1%;  /* cabinet left wall: 427px / 3856px */
+  aspect-ratio: 2875 / 2134; /* exact screen hole pixel dimensions */
   overflow: hidden;
-  background: #000;
-  border: 1em solid rgb(0, 0, 0, 0);
-  border-radius: 0.1rem;
-  /* Faint scanline overlay — purely visual */
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.12) 2px,
-    rgba(0,0,0,0.12) 4px
-  );
+  background: #040405;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
+  position: relative; /* for absolutely-positioned children (skip buttons etc.) */
 }
 
 #screen-video:hover .skip-btn,
@@ -247,17 +224,6 @@ html {
 /* ---------------------------------------------------------------------------   Mobile menu tuning
    --------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  #arcade-container {
-    width: 100vw;
-    max-width: 100vw;
-    aspect-ratio: 0.55;
-  }
-  #screen-region {
-    top: 25%;
-    left: 10%;
-    width: 80%;
-    height: 34%;
-  }
   #menu-nav {
     width: 100%;
     max-width: 100%;
@@ -272,15 +238,18 @@ html {
   .menu-btn:focus {
     transform: none;
   }
-  #screen-video {
-    max-height: 45vh;
-  }
   #btn-pause, .skip-btn {
     display: none;
   }
-  #arcade-machine-img {
-    top: -8px;
-    height: calc(100% + 8px);
+}
+
+@media (max-width: 310px) {
+  #menu-nav {
+    gap: 0.3rem;
+  }
+  .menu-btn {
+    font-size: clamp(0.9rem, 4vw, 1.1rem);
+    padding: 0.55rem 0.7rem;
   }
 }
 
@@ -299,12 +268,6 @@ html {
   display: block;
   max-height: 100%;
 }
-
-#screen-region {
-  background: #040405;
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
-}
-
 
 /* Skip + pause buttons overlaid on the video */
 .skip-btn,

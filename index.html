@@ -21,15 +21,15 @@
   <section id="arcade-section" aria-label="Tethersnipe arcade machine">
     <div id="arcade-container">
 
-      <!-- Base layer: the arcade PNG -->
+      <!-- Top half of cabinet (above screen) -->
       <img
-        id="arcade-machine-img"
-        src="assets/images/arcade_machine.png"
-        alt="Tethersnipe arcade cabinet — purple with lime-green accents"
+        id="arcade-top"
+        src="assets/images/arcade_top.png"
+        alt=""
         draggable="false"
       >
 
-      <!-- ── Screen region ── -->
+      <!-- ── Screen region — sits between the two image halves ── -->
       <div id="screen-region" aria-live="polite">
 
         <!-- Menu screen (default) -->
@@ -135,6 +135,14 @@
         </div>
 
       </div><!-- /#screen-region -->
+
+      <!-- Bottom half of cabinet (below screen: control panel, buttons) -->
+      <img
+        id="arcade-bottom"
+        src="assets/images/arcade_bottom.png"
+        alt=""
+        draggable="false"
+      >
 
       <!-- ── Control panel overlays ── -->
       <!-- #button-region wraps spider + buttons so mobile scroll-reveal works -->
