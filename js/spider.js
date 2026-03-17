@@ -14,7 +14,7 @@ const SPIDER_EXT = '.svg'; // PLACEHOLDER
 
 let _intervalId = null;
 let _eyesOpen = 0;
-let _choiceActive = false;
+let _spiderRunning = false;
 let _onComplete = null;
 let _spiderEl = null;
 let _audioDecision = null;
@@ -68,7 +68,7 @@ const Spider = {
   startCountdown(onComplete, duration) {
     Spider.stopCountdown(); // clear any existing
 
-    _choiceActive = true;
+    _spiderRunning = true;
     _onComplete = onComplete;
     _eyesOpen = 8;
 
@@ -91,7 +91,7 @@ const Spider = {
       if (eyesClosed >= 8) {
         clearInterval(_intervalId);
         _intervalId = null;
-        _choiceActive = false;
+        _spiderRunning = false;
         if (_onComplete) _onComplete('red');
       }
     }, intervalMs);
@@ -105,7 +105,7 @@ const Spider = {
       clearInterval(_intervalId);
       _intervalId = null;
     }
-    _choiceActive = false;
+    _spiderRunning = false;
     _eyesOpen = 0;
     _setEyes(0);
 
@@ -122,6 +122,6 @@ const Spider = {
    * Returns true while a countdown is running.
    */
   isChoiceActive() {
-    return _choiceActive;
+    return _spiderRunning;
   },
 };

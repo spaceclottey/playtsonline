@@ -223,12 +223,9 @@ const Arcade = {
         const input = document.getElementById('notify-email-input');
         if (!input || !input.value.trim()) return;
 
-        const params = new URLSearchParams();
-        params.append('entry.849628579', input.value.trim());
-        fetch(
-          'https://docs.google.com/forms/d/e/1FAIpQLSc1iOe1GBUF9YJprX-3vtlRnhc-0T6HyIaSOw_Iqv0jAt_YoQ/formResponse',
-          { method: 'POST', mode: 'no-cors', body: params }
-        );
+        const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc1iOe1GBUF9YJprX-3vtlRnhc-0T6HyIaSOw_Iqv0jAt_YoQ/formResponse'
+          + '?entry.849628579=' + encodeURIComponent(input.value.trim());
+        fetch(formUrl, { method: 'GET', mode: 'no-cors' });
 
         notifySubmitBtn.textContent = 'SUBMITTED!';
         notifySubmitBtn.disabled = true;
@@ -371,7 +368,7 @@ const Arcade = {
     _showScreen('screen-about');
     const about = document.getElementById('about-text');
     if (!about) {
-      setTimeout(() => _showScreen('screen-menu'), 5000);
+      setTimeout(() => _showScreen('screen-menu'), 1000);
       return;
     }
 
@@ -417,7 +414,7 @@ const Arcade = {
           _aboutReturnTimer = setTimeout(() => {
             _showScreen('screen-menu');
             _aboutReturnTimer = null;
-          }, 5000);
+          }, 1000);
         }
       };
       _aboutAutoScrollFrame = requestAnimationFrame(frame);
