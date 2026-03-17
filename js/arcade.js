@@ -223,16 +223,18 @@ const Arcade = {
         const input = document.getElementById('notify-email-input');
         if (!input || !input.value.trim()) return;
 
-        const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc1iOe1GBUF9YJprX-3vtlRnhc-0T6HyIaSOw_Iqv0jAt_YoQ/formResponse'
-          + '?entry.849628579=' + encodeURIComponent(input.value.trim());
-        fetch(formUrl, { method: 'GET', mode: 'no-cors' });
+        fetch('https://formspree.io/f/xlgpoaoj', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: input.value.trim() }),
+        });
 
+        input.value = '';
         notifySubmitBtn.textContent = 'SUBMITTED!';
         notifySubmitBtn.disabled = true;
 
         setTimeout(() => {
           _showScreen('screen-menu');
-          input.value = '';
           notifySubmitBtn.textContent = 'SUBMIT';
           notifySubmitBtn.disabled = false;
         }, 1800);
