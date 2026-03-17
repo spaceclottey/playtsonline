@@ -328,7 +328,7 @@ const Arcade = {
       if (iframe) iframe.src = '';
       _showScreen('screen-menu');
       _aboutReturnTimer = null;
-    }, 32000);
+    }, 33000);
   },
 
   showAbout() {
