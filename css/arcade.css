@@ -56,8 +56,8 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 
 #screen-region {
   display: block;
-  width: 74.6%;        /* cabinet screen hole width: 2875px / 3856px */
-  margin-left: 11.1%;  /* cabinet left wall: 427px / 3856px */
+  width: 69%;        /* cabinet screen hole width: 2875px / 3856px */
+  margin-left: 14%;  /* cabinet left wall: 427px / 3856px */
   aspect-ratio: 2875 / 2134; /* exact screen hole pixel dimensions */
   overflow: hidden;
   background: #040405;
@@ -269,6 +269,12 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   max-height: 100%;
 }
 
+#screen-region {
+  background: #040405;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
+}
+
+
 /* Skip + pause buttons overlaid on the video */
 .skip-btn,
 #btn-pause {
@@ -324,9 +330,30 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   position: relative;
   background: #000;
   padding: 0;
+  /* display:flex + centering come from .screen-state.active */
 }
 
-#screen-trailer iframe {
+/* 16:9 sub-container — keeps the video the right size regardless of screen aspect ratio */
+.trailer-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* 300% wide so YouTube's UI elements (logo, title, buttons) are pushed off-screen */
+.trailer-frame-container {
+  position: relative;
+  width: 300%;
+  left: -100%;
+  height: 100%;
+}
+
+.trailer-frame-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   border: none;
