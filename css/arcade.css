@@ -1,0 +1,638 @@
+/* arcade.css — Arcade PNG layering, screen/spider/button positions.
+   All coordinates are PERCENTAGES of the arcade container so the whole
+   machine scales at any size.
+
+   IMPORTANT: Every % value below is a PLACEHOLDER tuned to a rough estimate.
+   Open index.html in a browser, inspect the PNG, and adjust until
+   each overlay aligns with its target region in the artwork.
+*/
+
+/* ---------------------------------------------------------------------------
+   Container — fixed aspect ratio, max 600 px wide, centred
+   --------------------------------------------------------------------------- */
+
+#arcade-container {
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  aspect-ratio: 3 / 5;
+  margin: 0 auto;
+  user-select: none;
+  min-height: 100vh;
+}
+
+@media (min-width: 1280px) {
+  #arcade-container { width: 100vw; max-width: 100vw; }
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide scrollbar while keeping page scrollable */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#arcade-machine-img {
+  position: absolute;
+  top: -4%;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 10px);
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Screen region — sits inside the gray screen area of the PNG
+   PLACEHOLDER: fine-tune these four values by inspecting the PNG in-browser.
+   --------------------------------------------------------------------------- */
+
+  /* 
+  The good values:
+  top:    33%;
+  left:   27%;
+  width:  42%;
+  height: 17%; */
+#screen-region {
+  position: absolute;
+  top:    30%;
+  left:   12%;
+  width:  73%;
+  height: 29%;
+  overflow: hidden;
+  background: #000;
+  border: 1em solid rgb(0, 0, 0, 0);
+  border-radius: 0.1rem;
+  /* Faint scanline overlay — purely visual */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.12) 2px,
+    rgba(0,0,0,0.12) 4px
+  );
+}
+
+#screen-video:hover .skip-btn,
+#screen-video:hover #btn-pause {
+  opacity: 1;
+  visibility: visible;
+}
+
+.skip-btn,
+#btn-pause {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+#btn-pause {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(170,255,0,0.7);
+  color: rgba(255,255,255,0.95);
+  font-size: 0.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.skip-btn {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(170,255,0,0.5);
+  color: rgba(255,255,255,0.95);
+  font-size: 0.8rem;
+  padding: 0.3em 0.4em;
+  cursor: pointer;
+  z-index: 5;
+}
+
+#skip-back { left: 2%; }
+#skip-forward { right: 2%; }
+
+
+/* Screen state: only .active is visible */
+.screen-state {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.screen-state.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Menu screen
+   --------------------------------------------------------------------------- */
+
+#screen-menu {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  gap: 0.5em;
+  padding: 6%;
+}
+
+#menu-pixel-art {
+  width: 100%;
+  flex: 0.6 1 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* PLACEHOLDER: remove background once real pixel art is slotted in */
+  background: rgba(80, 0, 120, 0.4);
+  font-size: 0.5em;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+#menu-pixel-art::after {
+  content: 'pixel art here';
+}
+
+#menu-nav {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.6rem, 3vw, 1rem);
+  width: min(90%, 420px);
+  max-height: 60vh;
+  margin: 0 auto;
+}
+
+.menu-btn--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+#menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 2.2vw, 1rem);
+  width: min(85vw, 90%);
+  max-width: min(500px, 95vw);
+  margin: 0 auto;
+}
+
+.menu-btn {
+  background: rgba(0,0,0,0.35);
+  border: 2px solid rgba(170,255,0,0.8);
+  color: var(--color-lime);
+  font-family: var(--font-main);
+  font-size: clamp(0.9rem, 2.8vw, 1.5rem);
+  letter-spacing: 0.14em;
+  padding: clamp(0.55rem, 1.7vw, 1rem) clamp(0.8rem, 2.2vw, 1rem);
+  text-align: center;
+  cursor: pointer;
+  border-radius: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+
+.menu-btn:hover,
+.menu-btn:focus {
+  background: var(--color-lime);
+  color: #000;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.menu-btn--secondary {
+  border-color: var(--color-text-dim);
+  color: var(--color-text-dim);
+}
+
+.menu-btn--secondary:hover,
+.menu-btn--secondary:focus {
+  background: var(--color-text-dim);
+  color: #000;
+}
+
+/* ---------------------------------------------------------------------------   Mobile menu tuning
+   --------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  #arcade-container {
+    width: 100vw;
+    max-width: 100vw;
+    aspect-ratio: 0.55;
+  }
+  #screen-region {
+    top: 25%;
+    left: 10%;
+    width: 80%;
+    height: 34%;
+  }
+  #menu-nav {
+    width: 100%;
+    max-width: 100%;
+    gap: 0.4rem;
+  }
+  .menu-btn {
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    padding: 0.7rem 0.9rem;
+    letter-spacing: 0.12em;
+  }
+  .menu-btn:hover,
+  .menu-btn:focus {
+    transform: none;
+  }
+  #screen-video {
+    max-height: 45vh;
+  }
+  #btn-pause, .skip-btn {
+    display: none;
+  }
+  #arcade-machine-img {
+    top: -8px;
+    height: calc(100% + 8px);
+  }
+}
+
+/* ---------------------------------------------------------------------------   Video screen
+   --------------------------------------------------------------------------- */
+
+#screen-video {
+  position: relative;
+  background: #000;
+}
+
+#video-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  max-height: 100%;
+}
+
+#screen-region {
+  background: #040405;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
+}
+
+
+/* Skip + pause buttons overlaid on the video */
+.skip-btn,
+#btn-pause {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(170, 255, 0, 0.4);
+  color: rgba(170, 255, 0, 0.85);
+  font-family: var(--font-main);
+  font-size: clamp(0.45rem, 1.4vw, 0.75rem);
+  padding: 0.3em 0.45em;
+  cursor: pointer;
+  z-index: 5;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#skip-back { left: 2%; }
+#btn-pause { left: calc(50% - 1.2em); }
+#skip-forward { right: 2%; }
+
+#btn-green, #btn-red, #spider-region {
+  display: none !important;
+}
+
+#screen-video:hover .skip-btn,
+#screen-video:hover #btn-pause {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#screen-video:hover #btn-pause {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.skip-btn:hover,
+#btn-pause:hover {
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   Unfilmed choice screen
+   --------------------------------------------------------------------------- */
+
+#screen-about {
+  padding: 0.5rem;
+  background: #020214;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#about-text {
+  width: min(95%, 700px);
+  max-height: 100%;
+  overflow-y: auto;
+  font-family: var(--font-main);
+  color: #f2f2f2;
+  line-height: 1.9;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.25);
+  padding: 1rem 1.2rem;
+  border-radius: 0.35rem;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  text-align: center;
+  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+  scrollbar-width: none;
+}
+
+#about-text::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+#screen-unfilmed {
+  flex-direction: row !important;
+  gap: 2%;
+  padding: 2%;
+  background: #000;
+}
+
+.unfilmed-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.unfilmed-panel--green { border-color: var(--color-lime); }
+.unfilmed-panel--red   { border-color: var(--color-red); }
+
+.unfilmed-panel:hover.unfilmed-panel--green { background: rgba(170,255,0,0.08); }
+.unfilmed-panel:hover.unfilmed-panel--red   { background: rgba(255,34,34,0.08); }
+
+.unfilmed-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* PLACEHOLDER: shows checkerboard if no thumbnail src set */
+  background: repeating-conic-gradient(#1a0030 0% 25%, #2a0050 0% 50%) 0 0 / 8px 8px;
+}
+
+.unfilmed-label {
+  position: relative;
+  z-index: 2;
+  background: rgba(0,0,0,0.75);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  font-size: clamp(0.4rem, 1.2vw, 0.65rem);
+  letter-spacing: 0.06em;
+  padding: 0.2em 0.4em;
+  text-align: center;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Commentary screen
+   --------------------------------------------------------------------------- */
+
+#screen-commentary {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  flex-direction: column;
+  padding: 4%;
+  overflow-y: auto;
+}
+
+.commentary-title {
+  font-size: clamp(0.5rem, 1.5vw, 0.8rem);
+  letter-spacing: 0.12em;
+  margin-bottom: 0.6em;
+  text-align: center;
+}
+
+#commentary-list {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4%;
+}
+
+#commentary-list li button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-left: 2px solid var(--color-lime);
+  color: var(--color-lime);
+  font-family: var(--font-main);
+  font-size: clamp(0.4rem, 1.2vw, 0.65rem);
+  padding: 0.3em 0.5em;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+#commentary-list li button:hover {
+  background: rgba(170,255,0,0.1);
+}
+
+.commentary-placeholder {
+  color: var(--color-text-dim);
+  font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+  text-align: center;
+}
+
+#commentary-player {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4%;
+}
+
+#commentary-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Code prompt screen
+   --------------------------------------------------------------------------- */
+
+#screen-codeprompt {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  flex-direction: column;
+  gap: 8%;
+  padding: 6%;
+}
+
+.codeprompt-title {
+  font-size: clamp(0.55rem, 1.6vw, 0.85rem);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.codeprompt-btns {
+  display: flex;
+  gap: 8%;
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Spider region — centered between the two choice buttons
+   PLACEHOLDER: tune % coords by inspecting the PNG.
+   --------------------------------------------------------------------------- */
+
+#spider-region {
+  position: absolute;
+  /* Centred in the control panel area */
+  top:    56%;
+  left:   30%;
+  width:  40%;
+  height: 14%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#spider-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* PLACEHOLDER: shows a colored square until real images are placed */
+  background: rgba(100, 0, 160, 0.6);
+  border-radius: 50%;
+}
+
+/* ---------------------------------------------------------------------------
+   Choice buttons — green (left) and red (right)
+   PLACEHOLDER: tune % coords by inspecting the PNG.
+   --------------------------------------------------------------------------- */
+
+.choice-button {
+  position: absolute;
+  font-family: var(--font-main);
+  font-size: clamp(0.4rem, 1.2vw, 0.7rem);
+  letter-spacing: 0.08em;
+  border-radius: 50%;
+  width: 10%;
+  aspect-ratio: 1;
+  border: 3px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10;
+}
+
+.choice-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.choice-button:not(:disabled):active {
+  transform: scale(0.9);
+}
+
+.choice-button--green {
+  background: radial-gradient(circle at 35% 35%, #66ff33, #228800);
+  box-shadow: 0 0 8px rgba(100,255,0,0.5);
+  top:  55%;
+  left: 30%;
+}
+
+.choice-button--green:not(:disabled):hover {
+  box-shadow: 0 0 16px rgba(100,255,0,0.9);
+}
+
+.choice-button--red {
+  background: radial-gradient(circle at 35% 35%, #ff5555, #880000);
+  box-shadow: 0 0 8px rgba(255,50,50,0.5);
+  top:   55%;
+  right: 30%;
+}
+
+.choice-button--red:not(:disabled):hover {
+  box-shadow: 0 0 16px rgba(255,50,50,0.9);
+}
+
+/* Button label below button (shown when choice is active) */
+.choice-button[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -130%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.7em;
+  color: var(--color-text);
+  background: rgba(0,0,0,0.7);
+  padding: 0.15em 0.3em;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Fullscreen button
+   --------------------------------------------------------------------------- */
+
+#fullscreen-btn { display: none !important; }
+
+#fullscreen-btn:hover { opacity: 1; background: rgba(0,0,0,0.8); }
+
+/* Fullscreen mode: fill the viewport */
+:fullscreen #arcade-container,
+:-webkit-full-screen #arcade-container {
+  max-width: 100vmin;
+  height: 100vh;
+}

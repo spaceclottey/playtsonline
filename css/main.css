@@ -1,0 +1,206 @@
+/* main.css — Page layout, fonts, overall retro arcade theme */
+
+/* ---------------------------------------------------------------------------
+   Fonts
+   Use a Google Fonts monospace or system monospace. For pixel font, add
+   a web font import here (e.g. Press Start 2P from Google Fonts).
+   PLACEHOLDER: swap out the font-family below for a pixel/retro font.
+   --------------------------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+  --color-bg:          #0a0010;
+  --color-purple:      #4b0082;
+  --color-purple-dark: #2a0050;
+  --color-lime:        #aaff00;
+  --color-lime-dim:    #557a00;
+  --color-red:         #ff2222;
+  --color-red-dim:     #7a0000;
+  --color-screen:      #111122;
+  --color-text:        #e0e0e0;
+  --color-text-dim:    #888888;
+  --font-main:         'Share Tech Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Arcade section
+   --------------------------------------------------------------------------- */
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  position: relative;
+}
+
+#arcade-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  position: relative;
+}
+
+#arcade-container {
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  position: relative;
+  top: 0;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Credits section
+   --------------------------------------------------------------------------- */
+
+#credits-section {
+  padding: 4rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  border-top: 2px solid var(--color-purple);
+}
+
+#credits-section h2 {
+  font-size: 2rem;
+  color: var(--color-lime);
+  letter-spacing: 0.2em;
+  margin-bottom: 1.5rem;
+}
+
+#credits-section p {
+  color: var(--color-text-dim);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#credits-text ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5rem 0 0;
+}
+
+#credits-text ul li {
+  margin: 0.1rem 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.credits-year {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Save section
+   --------------------------------------------------------------------------- */
+
+#save-section {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto 4rem;
+  border-top: 1px solid var(--color-purple-dark);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+}
+
+#save-container p {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+#play-code-display {
+  color: var(--color-lime);
+  letter-spacing: 0.15em;
+  font-size: 1rem;
+}
+
+#load-code-form {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+#load-code-form label {
+  align-self: center;
+  font-size: 0.8rem;
+}
+
+#load-code-input,
+#resume-code-input {
+  background: var(--color-purple-dark);
+  border: 1px solid var(--color-lime-dim);
+  color: var(--color-lime);
+  font-family: var(--font-main);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  width: 12em;
+}
+
+#load-code-input:focus,
+#resume-code-input:focus {
+  outline: 2px solid var(--color-lime);
+}
+
+/* Generic button resets / styles used across sections */
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+}
+
+#load-code-btn,
+#copy-code-btn {
+  background: var(--color-purple);
+  border: 1px solid var(--color-lime-dim);
+  color: var(--color-lime);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+#load-code-btn:hover,
+#copy-code-btn:hover {
+  background: var(--color-lime-dim);
+}

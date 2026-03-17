@@ -1,0 +1,52 @@
+/* spider.css — Spider eye state classes.
+   Each class swaps the spider image src via content / background-image.
+   The actual swap happens in spider.js by toggling classes on #spider-img.
+
+   PLACEHOLDER: once spider_eyes_0.png through spider_eyes_8.png are ready,
+   set the background-image on each class or let spider.js update the src
+   attribute directly (current approach — no CSS change needed).
+   These classes are kept here for custom styling if desired.
+*/
+
+/* Idle — all eyes closed */
+.spider--eyes-0 {
+  /* No special style needed; src is set to spider_eyes_0.png */
+  /* Add a pulse if you want an idle animation */
+}
+
+/* One eye open */
+.spider--eyes-1 {}
+
+/* Two eyes open */
+.spider--eyes-2 {}
+
+/* Three eyes open */
+.spider--eyes-3 {}
+
+/* Four eyes open */
+.spider--eyes-4 {}
+
+/* Five eyes open */
+.spider--eyes-5 {}
+
+/* Six eyes open */
+.spider--eyes-6 {}
+
+/* Seven eyes open */
+.spider--eyes-7 {}
+
+/* All eight eyes open — maximum urgency */
+.spider--eyes-8 {
+  /* Optional: glow when fully open */
+  filter: drop-shadow(0 0 6px var(--color-lime));
+}
+
+/* Countdown-active glow on the container */
+#spider-region:has(.spider--eyes-8) {
+  animation: spider-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes spider-pulse {
+  from { opacity: 0.85; }
+  to   { opacity: 1; }
+}

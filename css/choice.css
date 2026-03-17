@@ -1,0 +1,66 @@
+/* choice.css — Choice button animations and fake-choice state */
+
+/* ---------------------------------------------------------------------------
+   Animating state — used for fake choices (God Route)
+   Buttons pulse visually but are not clickable.
+   --------------------------------------------------------------------------- */
+
+@keyframes btn-fake-pulse-green {
+  0%   { box-shadow: 0 0 6px  rgba(100,255,0,0.4); }
+  50%  { box-shadow: 0 0 20px rgba(100,255,0,0.9); }
+  100% { box-shadow: 0 0 6px  rgba(100,255,0,0.4); }
+}
+
+@keyframes btn-fake-pulse-red {
+  0%   { box-shadow: 0 0 6px  rgba(255,50,50,0.4); }
+  50%  { box-shadow: 0 0 20px rgba(255,50,50,0.9); }
+  100% { box-shadow: 0 0 6px  rgba(255,50,50,0.4); }
+}
+
+.choice-button--green.choice-button--animating {
+  animation: btn-fake-pulse-green 1s ease-in-out infinite;
+  opacity: 1; /* override the :disabled opacity */
+  pointer-events: none;
+}
+
+.choice-button--red.choice-button--animating {
+  animation: btn-fake-pulse-red 1s ease-in-out infinite;
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Active choice state — buttons that are enabled and waiting for input
+   --------------------------------------------------------------------------- */
+
+.choice-button:not(:disabled):not(.choice-button--animating) {
+  animation: btn-ready 2s ease-in-out infinite;
+}
+
+@keyframes btn-ready {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+
+/* ---------------------------------------------------------------------------
+   Unfilmed panel keyboard focus
+   --------------------------------------------------------------------------- */
+
+.unfilmed-panel:focus {
+  outline: 3px solid #fff;
+  outline-offset: -3px;
+}
+
+/* ---------------------------------------------------------------------------
+   Button region pulse (mobile scroll-reveal)
+   --------------------------------------------------------------------------- */
+
+#button-region.button-region--pulse .choice-button {
+  animation: btn-mobile-pulse 0.4s ease-in-out 4;
+}
+
+@keyframes btn-mobile-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}

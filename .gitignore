@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Video files — served from CDN, not committed to the repo
+# (only README.txt in videos/ is tracked)
+videos/*.mp4
+videos/*.mov
+
+# Unfilmed choice thumbnails — added as you record them
+assets/thumbnails/*.mp4
+assets/thumbnails/*.mov
+
+# Audio files — add when ready (small files are fine to commit)
+# assets/audio/*.mp3
+
+# Editor / OS
+*.swp
+*.swo
+Thumbs.db

@@ -1,0 +1,91 @@
+/* mobile.css — Mobile-specific overrides (max-width: 767px) */
+
+@media (max-width: 767px) {
+
+  /* Stack the arcade section to fill more of the screen */
+  #arcade-section {
+    padding: 0.25rem;
+    align-items: flex-start;
+  }
+
+  /* Allow the container to be a bit taller on narrow screens */
+  #arcade-container {
+    max-width: 100%;
+  }
+
+  /* Slightly larger menu buttons on touch screens */
+  .menu-btn {
+    padding: 0.5em 0.8em;
+    font-size: 0.7rem;
+  }
+
+  /* Choice buttons: slightly larger hit target */
+  .choice-button {
+    width: 13%;
+  }
+
+  /* Skip buttons: hide on very small screens to reduce clutter */
+  @media (max-width: 400px) {
+    .skip-btn {
+      display: none;
+    }
+  }
+
+  /* Ensure the unfilmed panels stack vertically if the screen is very narrow */
+  @media (max-width: 380px) {
+    #screen-unfilmed {
+      flex-direction: column !important;
+    }
+    .unfilmed-panel {
+      flex: none;
+      height: 48%;
+    }
+  }
+
+  /* Fullscreen button: slightly larger */
+  #fullscreen-btn {
+    font-size: 0.75rem;
+    padding: 0.3em 0.4em;
+  }
+
+  /* Save section: column layout on small screens */
+  #save-container p {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  #load-code-form {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  #load-code-input {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* Credits: tighter padding */
+  #credits-section {
+    padding: 2rem 1rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Touch-specific: remove hover effects that don't apply to touch
+   --------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .menu-btn:hover,
+  .choice-button--green:not(:disabled):hover,
+  .choice-button--red:not(:disabled):hover {
+    box-shadow: none;
+    background: initial;
+    color: initial;
+  }
+
+  .menu-btn:active {
+    background: var(--color-lime);
+    color: #000;
+  }
+}

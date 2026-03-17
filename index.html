@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tethersnipe — Play Online</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
+  <link rel="shortcut icon" href="assets/images/favicon_io/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/spider.css">
+  <link rel="stylesheet" href="css/choice.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <!-- =====================================================================
+       SECTION 1: Arcade machine — all gameplay happens here
+       ===================================================================== -->
+  <section id="arcade-section" aria-label="Tethersnipe arcade machine">
+    <div id="arcade-container">
+
+      <!-- Base layer: the arcade PNG -->
+      <img
+        id="arcade-machine-img"
+        src="assets/images/arcade_machine.png"
+        alt="Tethersnipe arcade cabinet — purple with lime-green accents"
+        draggable="false"
+      >
+
+      <!-- ── Screen region ── -->
+      <div id="screen-region" aria-live="polite">
+
+        <!-- Menu screen (default) -->
+        <div id="screen-menu" class="screen-state active">
+          <!-- <div id="menu-pixel-art"> -->
+            <!-- PLACEHOLDER: pixel art characters image -->
+            <!-- <img src="assets/images/characters_pixel.png" alt=""> -->
+          <!-- </div> -->
+          <nav id="menu-nav" aria-label="Main menu">
+            <button id="btn-coming" class="menu-btn menu-btn--disabled" disabled>COMING SUMMER 2026</button>
+            <button id="btn-trailer" class="menu-btn">TRAILER</button>
+            <button id="btn-about"   class="menu-btn">ABOUT</button>
+            <!-- <button id="btn-play"   class="menu-btn" style="display:none">PLAY</button> -->
+            <!-- <button id="btn-resume" class="menu-btn" style="display:none">RESUME</button> -->
+            <button id="btn-credits-menu" class="menu-btn" style="display:none">CREDITS</button>
+          </nav>
+        </div>
+
+        <!-- About screen -->
+        <div id="screen-about" class="screen-state">
+          <div class="about-text" id="about-text"></div>
+        </div>
+
+        <!-- Video screen -->
+        <div id="screen-video" class="screen-state">
+          <video
+            id="video-main"
+            playsinline
+            aria-label="Scene video"
+          ></video>
+          <!-- Hidden preload buffers -->
+          <video id="video-buffer-a" playsinline style="display:none" aria-hidden="true"></video>
+          <video id="video-buffer-b" playsinline style="display:none" aria-hidden="true"></video>
+          <!-- Skip buttons overlaid on video -->
+          <button id="skip-back"    class="skip-btn" aria-label="Skip back 10 seconds">◄◄</button>
+          <button id="btn-pause"    class="skip-btn" aria-label="Pause">⏸</button>
+          <button id="skip-forward" class="skip-btn" aria-label="Skip forward 10 seconds">►►</button>
+        </div>
+
+        <!-- Unfilmed choice screen: two looping panels -->
+        <div id="screen-unfilmed" class="screen-state">
+          <div id="unfilmed-green" class="unfilmed-panel unfilmed-panel--green" role="button" tabindex="0" aria-label="Green choice">
+            <video class="unfilmed-thumb" autoplay loop muted playsinline aria-hidden="true"></video>
+            <span class="unfilmed-label"></span>
+          </div>
+          <div id="unfilmed-red" class="unfilmed-panel unfilmed-panel--red" role="button" tabindex="0" aria-label="Red choice">
+            <video class="unfilmed-thumb" autoplay loop muted playsinline aria-hidden="true"></video>
+            <span class="unfilmed-label"></span>
+          </div>
+        </div>
+
+        <!-- Commentary screen -->
+        <div id="screen-commentary" class="screen-state">
+          <div id="commentary-menu">
+            <h2 class="commentary-title">DIRECTOR'S COMMENTARY</h2>
+            <ul id="commentary-list"></ul>
+          </div>
+          <div id="commentary-player" style="display:none">
+            <iframe
+              id="commentary-iframe"
+              width="100%"
+              height="100%"
+              frameborder="0"
+              allow="autoplay; fullscreen"
+              allowfullscreen
+              title="Commentary track"
+            ></iframe>
+            <button id="commentary-back" class="menu-btn">← BACK</button>
+          </div>
+        </div>
+
+        <!-- Code prompt (for resume without a save) -->
+        <div id="screen-codeprompt" class="screen-state">
+          <h2 class="codeprompt-title">ENTER PLAY CODE</h2>
+          <input
+            id="resume-code-input"
+            type="text"
+            maxlength="30"
+            placeholder="e.g. ABDGL"
+            aria-label="Play code"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          >
+          <div class="codeprompt-btns">
+            <button id="resume-code-btn" class="menu-btn">LOAD</button>
+            <button id="resume-cancel-btn" class="menu-btn menu-btn--secondary">CANCEL</button>
+          </div>
+        </div>
+
+      </div><!-- /#screen-region -->
+
+      <!-- ── Control panel overlays ── -->
+      <!-- #button-region wraps spider + buttons so mobile scroll-reveal works -->
+      <div id="button-region">
+
+      <!-- Spider eye countdown (centered between buttons) -->
+      <div id="spider-region" aria-hidden="true">
+        <img
+          id="spider-img"
+          class="spider--eyes-0"
+          src="assets/images/spider_eyes_0.svg"
+          alt="Spider countdown — all eyes closed"
+        >
+        <!-- PLACEHOLDER: replace .svg filenames with spider_eyes_0.png … spider_eyes_8.png
+             once artwork is ready. Update SPIDER_EXT in spider.js too. -->
+        <!-- PLACEHOLDER: replace src with spider_eyes_N.png variants via CSS classes -->
+      </div>
+
+      <!-- Green (left) choice button -->
+      <button
+        id="btn-green"
+        class="choice-button choice-button--green"
+        disabled
+        aria-label="Green"
+        aria-disabled="true"
+      >GREEN</button>
+
+      <!-- Red (right) choice button -->
+      <button
+        id="btn-red"
+        class="choice-button choice-button--red"
+        disabled
+        aria-label="Red"
+        aria-disabled="true"
+      >RED</button>
+
+      </div><!-- /#button-region -->
+
+      <!-- Fullscreen toggle -->
+      <button id="fullscreen-btn" aria-label="Toggle fullscreen">&#x26F6;</button>
+
+    </div><!-- /#arcade-container -->
+  </section>
+
+  <!-- =====================================================================
+       SECTION 2: Credits (always reachable by scrolling)
+       ===================================================================== -->
+  <section id="credits-section" aria-label="Credits">
+    <div id="credits-text">
+      <h2>TETHERSNIPE</h2>
+      <ul>
+        <li>Director: Space Lutterodt-Clottey</li>
+        <li>Creative Director: Nellie Gregg</li>
+        <li>Writer/Actor: Alexander Kauffman</li>
+        <li>Writer/Actor: Tracy Li</li>
+        <li>Writer/Actor: Emma Gordon</li>
+        <li>Production Manager: Marjory Ignacio-Almazan</li>
+        <li>Stage Manager: Jani Carr</li>
+        <li>Stage Manager: Lauren Stephenson</li>
+        <li>Sound Design/Operation: Sarinah Reichle</li>
+        <li>Props: Sam Perry</li>
+        <li>Lighting: Alex Lee</li>
+        <li>Costume: Lucy Shainin</li>
+        <li>Set: Krisha Jain</li>
+        <li>Music: Ishaan Jain</li>
+        <li>Theme Rendering: Vi Eicher</li>
+        <li>Cinematography: Mathew Paulin</li>
+        <li>Cinematography: Jaelyn Dudley</li>
+        <li>Assistant Cinematography: Von Stroud</li>
+        <li>Editor: Alexander Kauffman</li>
+        <li>Intimacy Coordination: Kayla Ibarra</li>
+        <li>Photography: Indigo Shi</li>
+        <li>The Dooleys Players 2025-26 board</li>
+      </ul>
+      <p class="credits-year">&copy; 2026 Tethersnipe</p>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SECTION 3: Save / play code
+       ===================================================================== -->
+  <section id="save-section" aria-label="Play code">
+    <div id="save-container">
+      <p>
+        Your play code:
+        <strong id="play-code-display" aria-live="polite">—</strong>
+        <button id="copy-code-btn" aria-label="Copy play code to clipboard">Copy</button>
+      </p>
+      <div id="load-code-form">
+        <label for="load-code-input">Resume from code:</label>
+        <input
+          id="load-code-input"
+          type="text"
+          placeholder="Enter play code"
+          maxlength="30"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        >
+        <button id="load-code-btn">Load</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       Audio elements (hidden)
+       PLACEHOLDER: replace src with real audio files
+       ===================================================================== -->
+  <audio id="audio-theme"       src="assets/audio/theme_song.mp3"         preload="none" aria-hidden="true"></audio>
+  <audio id="audio-eye-close"   src="assets/audio/eye_close.mp3"           preload="none" aria-hidden="true"></audio>
+  <audio id="audio-decision-10" src="assets/audio/decision_noise_10s.mp3"  preload="none" aria-hidden="true"></audio>
+  <audio id="audio-decision-25" src="assets/audio/decision_noise_25s.mp3"  preload="none" aria-hidden="true"></audio>
+
+  <!-- =====================================================================
+       Scripts (order matters — branches.js must come before main.js)
+       ===================================================================== -->
+  <script src="js/branches.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/spider.js"></script>
+  <script src="js/choice.js"></script>
+  <script src="js/arcade.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
