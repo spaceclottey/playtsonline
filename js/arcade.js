@@ -318,7 +318,7 @@ const Arcade = {
 
     const iframe = document.getElementById('trailer-iframe');
     if (iframe) {
-      iframe.src = 'https://www.youtube-nocookie.com/embed/sUGTUjznAbU?autoplay=1';
+      iframe.src = 'https://www.youtube-nocookie.com/embed/sUGTUjznAbU?autoplay=1&controls=0&rel=0';
     }
     _showScreen('screen-trailer');
   },
