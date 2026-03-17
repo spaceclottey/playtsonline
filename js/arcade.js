@@ -264,8 +264,9 @@ const Arcade = {
     // Trailer back button
     document.getElementById('trailer-back')
       && document.getElementById('trailer-back').addEventListener('click', () => {
+        if (_aboutReturnTimer) { clearTimeout(_aboutReturnTimer); _aboutReturnTimer = null; }
         const iframe = document.getElementById('trailer-iframe');
-        if (iframe) iframe.src = ''; // stop playback
+        if (iframe) iframe.src = '';
         _showScreen('screen-menu');
       });
 
@@ -321,6 +322,13 @@ const Arcade = {
       iframe.src = 'https://www.youtube-nocookie.com/embed/sUGTUjznAbU?autoplay=1&controls=0&rel=0';
     }
     _showScreen('screen-trailer');
+
+    _aboutReturnTimer = setTimeout(() => {
+      const iframe = document.getElementById('trailer-iframe');
+      if (iframe) iframe.src = '';
+      _showScreen('screen-menu');
+      _aboutReturnTimer = null;
+    }, 32000);
   },
 
   showAbout() {
