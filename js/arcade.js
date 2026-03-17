@@ -350,24 +350,29 @@ const Arcade = {
     }
 
     about.innerHTML = `
-<p>A manager of a dying arcade takes initiative to follow her moral convictions amidst the recession. <br> <br> A jaded entomologist clocks in after committing academic fraud for breakfast.</p>
-<br>
+<div class="about-lead-space"></div>
+<p>A manager of a dying arcade takes initiative to follow her moral convictions amidst the recession.</p>
+<p>A jaded entomologist clocks in after committing academic fraud for breakfast.</p>
 <p>A listless teenager suffocated by boredom has nothing better to do.</p>
-<br>
 <p>They play a game that hasn't been touched in a very, very long time.</p>
-<br>
 <p>Fall semester can't come soon enough... if it comes at all.</p>
-<br>
 <p>Can you make all the right choices? Or will you ensnare the characters in webs of tangled truths?</p>
+<div class="about-trail-space"></div>
 `;
     about.scrollTop = 0;
 
+    const SCROLL_DELAY = 1200;
     const total = Math.max(0, about.scrollHeight - about.clientHeight);
     if (total > 0) {
       const start = performance.now();
-      const duration = 20000;
+      const duration = 24000;
       const frame = (ts) => {
-        const progress = Math.min((ts - start) / duration, 1);
+        const elapsed = ts - start - SCROLL_DELAY;
+        if (elapsed < 0) {
+          _aboutAutoScrollFrame = requestAnimationFrame(frame);
+          return;
+        }
+        const progress = Math.min(elapsed / duration, 1);
         about.scrollTop = Math.round(total * progress);
         if (progress < 1) {
           _aboutAutoScrollFrame = requestAnimationFrame(frame);
