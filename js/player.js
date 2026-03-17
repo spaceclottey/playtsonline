@@ -8,9 +8,9 @@
 
 // Default: GitHub Releases
 // Upload MP4s to a release tagged "videos" on your GitHub repo.
-// URL format: https://github.com/spaceclottey/playtethersnipe/releases/download/videos/
+// URL format: https://github.com/spaceclottey/playtsonline/releases/download/videos/
 const VIDEO_BASE_URL =
-  'https://github.com/spaceclottey/playtethersnipe/releases/download/videos/';
+  'https://github.com/spaceclottey/playtsonline/releases/download/videos/';
 
 // ---------------------------------------------------------------------------
 // Internal state
