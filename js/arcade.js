@@ -51,7 +51,7 @@ let _aboutReturnTimer = null;
 // Screen state management
 // ---------------------------------------------------------------------------
 
-const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt'];
+const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt'];
 
 function _showScreen(id) {
   const screens = document.querySelectorAll('.screen-state');
@@ -261,6 +261,14 @@ const Arcade = {
       greenBtn.addEventListener('touchend', cancelHold);
     }
 
+    // Trailer back button
+    document.getElementById('trailer-back')
+      && document.getElementById('trailer-back').addEventListener('click', () => {
+        const iframe = document.getElementById('trailer-iframe');
+        if (iframe) iframe.src = ''; // stop playback
+        _showScreen('screen-menu');
+      });
+
     // Commentary back button
     document.getElementById('commentary-back')
       && document.getElementById('commentary-back').addEventListener('click', () => {
@@ -296,12 +304,9 @@ const Arcade = {
   },
 
   /**
-   * Switches to video screen and plays the given scene URL directly (for trailer).
+   * Shows the trailer as a YouTube embed.
    */
   showTrailer() {
-    _showScreen('screen-video');
-
-    // Cancel any about auto-scroll/return timer when switching to trailer.
     if (_aboutAutoScrollFrame) {
       cancelAnimationFrame(_aboutAutoScrollFrame);
       _aboutAutoScrollFrame = null;
@@ -311,39 +316,11 @@ const Arcade = {
       _aboutReturnTimer = null;
     }
 
-    // Ensure about screen is not left active by old logic.
-    const aboutScreen = document.getElementById('screen-about');
-    if (aboutScreen) aboutScreen.classList.remove('active');
-
-    const video = document.getElementById('video-main');
-    if (!video) return;
-
-    video.pause();
-    video.removeAttribute('src');
-    video.src = 'videos/trailer.mp4'; // PLACEHOLDER
-    video.currentTime = 0;
-    video.load();
-    video.play().catch(() => {});
-
-    const onEnded = () => {
-      video.removeEventListener('ended', onEnded);
-      video.removeEventListener('error', onError);
-      _aboutReturnTimer = setTimeout(() => {
-        _showScreen('screen-menu');
-        _aboutReturnTimer = null;
-      }, 3000);
-    };
-
-    const onError = () => {
-      video.removeEventListener('ended', onEnded);
-      video.removeEventListener('error', onError);
-      _showScreen('screen-menu');
-    };
-
-    video.removeEventListener('ended', onEnded);
-    video.removeEventListener('error', onError);
-    video.addEventListener('ended', onEnded);
-    video.addEventListener('error', onError);
+    const iframe = document.getElementById('trailer-iframe');
+    if (iframe) {
+      iframe.src = 'https://www.youtube-nocookie.com/embed/sUGTUjznAbU?autoplay=1';
+    }
+    _showScreen('screen-trailer');
   },
 
   showAbout() {

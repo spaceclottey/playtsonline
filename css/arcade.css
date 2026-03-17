@@ -353,6 +353,47 @@ html {
    Unfilmed choice screen
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Trailer screen
+   --------------------------------------------------------------------------- */
+
+#screen-trailer {
+  position: relative;
+  background: #000;
+  padding: 0;
+}
+
+#screen-trailer iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+#trailer-back {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.75rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+#trailer-back:hover {
+  background: rgba(0,0,0,0.9);
+}
+
 #screen-about {
   padding: 0.5rem;
   background: #020214;
