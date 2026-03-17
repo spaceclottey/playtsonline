@@ -358,6 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resumeBtn) {
     resumeBtn.style.display = Save.loadStateFromStorage() ? '' : 'none';
   }
+
+  // Center the screen vertically in the viewport on load
+  const screenRegion = document.getElementById('screen-region');
+  if (screenRegion) {
+    screenRegion.scrollIntoView({ behavior: 'instant', block: 'center' });
+  }
 });
 
 // Expose debug helpers to console for local testing

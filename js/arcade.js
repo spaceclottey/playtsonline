@@ -51,7 +51,7 @@ let _aboutReturnTimer = null;
 // Screen state management
 // ---------------------------------------------------------------------------
 
-const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt'];
+const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify'];
 
 function _showScreen(id) {
   const screens = document.querySelectorAll('.screen-state');
@@ -206,6 +206,42 @@ const Arcade = {
         _showScreen('screen-menu');
       });
 
+    // Notify screen
+    document.getElementById('btn-notify')
+      && document.getElementById('btn-notify').addEventListener('click', () => {
+        Arcade.showNotify();
+      });
+
+    document.getElementById('notify-cancel-btn')
+      && document.getElementById('notify-cancel-btn').addEventListener('click', () => {
+        _showScreen('screen-menu');
+      });
+
+    const notifySubmitBtn = document.getElementById('notify-submit-btn');
+    if (notifySubmitBtn) {
+      notifySubmitBtn.addEventListener('click', () => {
+        const input = document.getElementById('notify-email-input');
+        if (!input || !input.value.trim()) return;
+
+        const params = new URLSearchParams();
+        params.append('entry.849628579', input.value.trim());
+        fetch(
+          'https://docs.google.com/forms/d/e/1FAIpQLSc1iOe1GBUF9YJprX-3vtlRnhc-0T6HyIaSOw_Iqv0jAt_YoQ/formResponse',
+          { method: 'POST', mode: 'no-cors', body: params }
+        );
+
+        notifySubmitBtn.textContent = 'SUBMITTED!';
+        notifySubmitBtn.disabled = true;
+
+        setTimeout(() => {
+          _showScreen('screen-menu');
+          input.value = '';
+          notifySubmitBtn.textContent = 'SUBMIT';
+          notifySubmitBtn.disabled = false;
+        }, 1800);
+      });
+    }
+
     // Load code from save section at bottom of page
     document.getElementById('load-code-btn')
       && document.getElementById('load-code-btn').addEventListener('click', () => {
@@ -328,7 +364,7 @@ const Arcade = {
       if (iframe) iframe.src = '';
       _showScreen('screen-menu');
       _aboutReturnTimer = null;
-    }, 33000);
+    }, 34000);
   },
 
   showAbout() {
@@ -399,6 +435,15 @@ const Arcade = {
   showCodePrompt() {
     _showScreen('screen-codeprompt');
     const input = document.getElementById('resume-code-input');
+    input && input.focus();
+  },
+
+  /**
+   * Shows the email notification signup screen.
+   */
+  showNotify() {
+    _showScreen('screen-notify');
+    const input = document.getElementById('notify-email-input');
     input && input.focus();
   },
 
