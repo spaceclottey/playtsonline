@@ -47,6 +47,9 @@ let _onLoadCode = null;
 let _aboutAutoScrollFrame = null;
 let _aboutReturnTimer = null;
 
+// Trailer controls auto-hide timer
+let _trailerControlsTimer = null;
+
 // ---------------------------------------------------------------------------
 // Screen state management
 // ---------------------------------------------------------------------------
@@ -294,6 +297,18 @@ const Arcade = {
       greenBtn.addEventListener('mouseup', cancelHold);
       greenBtn.addEventListener('mouseleave', cancelHold);
       greenBtn.addEventListener('touchend', cancelHold);
+    }
+
+    // Trailer screen tap → show controls briefly on mobile
+    const trailerScreen = document.getElementById('screen-trailer');
+    if (trailerScreen) {
+      trailerScreen.addEventListener('touchstart', () => {
+        trailerScreen.classList.add('controls-visible');
+        clearTimeout(_trailerControlsTimer);
+        _trailerControlsTimer = setTimeout(() => {
+          trailerScreen.classList.remove('controls-visible');
+        }, 3000);
+      }, { passive: true });
     }
 
     // Trailer pause button

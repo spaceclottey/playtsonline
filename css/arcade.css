@@ -361,7 +361,8 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   line-height: 1;
 }
 
-#screen-trailer:hover .trailer-ctrl-btn {
+#screen-trailer:hover .trailer-ctrl-btn,
+#screen-trailer.controls-visible .trailer-ctrl-btn {
   opacity: 1;
   pointer-events: auto;
 }
