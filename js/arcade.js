@@ -354,6 +354,15 @@ const Arcade = {
         }
       });
 
+    // Menu button hover beep
+    const menuBeep = document.getElementById('audio-menu-beep');
+    document.querySelectorAll('.menu-btn').forEach((btn) => {
+      btn.addEventListener('mouseenter', () => {
+        if (!menuBeep) return;
+        menuBeep.cloneNode().play().catch(() => {});
+      });
+    });
+
     // Start on menu screen
     _showScreen('screen-menu');
   },
