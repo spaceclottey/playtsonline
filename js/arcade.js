@@ -296,14 +296,43 @@ const Arcade = {
       greenBtn.addEventListener('touchend', cancelHold);
     }
 
+    // Trailer pause button
+    const trailerPauseBtn = document.getElementById('trailer-pause');
+    if (trailerPauseBtn) {
+      trailerPauseBtn.addEventListener('click', () => {
+        const video = document.getElementById('trailer-video');
+        const icon = document.getElementById('trailer-pause-icon');
+        if (!video) return;
+        if (video.paused) {
+          video.play().catch(() => {});
+          trailerPauseBtn.setAttribute('aria-label', 'Pause');
+          if (icon) icon.querySelector('path').setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+        } else {
+          video.pause();
+          trailerPauseBtn.setAttribute('aria-label', 'Resume');
+          if (icon) icon.querySelector('path').setAttribute('d', 'M8 5v14l11-7z');
+        }
+      });
+    }
+
     // Trailer back button
     document.getElementById('trailer-back')
       && document.getElementById('trailer-back').addEventListener('click', () => {
-        if (_aboutReturnTimer) { clearTimeout(_aboutReturnTimer); _aboutReturnTimer = null; }
-        const iframe = document.getElementById('trailer-iframe');
-        if (iframe) iframe.src = '';
+        const video = document.getElementById('trailer-video');
+        if (video) { video.pause(); video.src = ''; }
+        const icon = document.getElementById('trailer-pause-icon');
+        if (icon) icon.querySelector('path').setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
         _showScreen('screen-menu');
       });
+
+    // Trailer ended → return to menu
+    const trailerVideo = document.getElementById('trailer-video');
+    if (trailerVideo) {
+      trailerVideo.addEventListener('ended', () => {
+        trailerVideo.src = '';
+        _showScreen('screen-menu');
+      });
+    }
 
     // Commentary back button
     document.getElementById('commentary-back')
@@ -340,7 +369,8 @@ const Arcade = {
   },
 
   /**
-   * Shows the trailer as a YouTube embed.
+   * Shows the trailer video.
+   * PLACEHOLDER: set VIDEO_BASE_URL once R2 bucket is ready, or set src directly here.
    */
   showTrailer() {
     if (_aboutAutoScrollFrame) {
@@ -352,18 +382,13 @@ const Arcade = {
       _aboutReturnTimer = null;
     }
 
-    const iframe = document.getElementById('trailer-iframe');
-    if (iframe) {
-      iframe.src = 'https://www.youtube-nocookie.com/embed/sUGTUjznAbU?autoplay=1&controls=0&rel=0';
+    const video = document.getElementById('trailer-video');
+    if (video) {
+      video.src = 'https://pub-7c58dd2cc67a41b3905832dbb21e30be.r2.dev/tethersnipe_teaser_trailer.mp4';
+      video.load();
+      video.play().catch(() => {});
     }
     _showScreen('screen-trailer');
-
-    _aboutReturnTimer = setTimeout(() => {
-      const iframe = document.getElementById('trailer-iframe');
-      if (iframe) iframe.src = '';
-      _showScreen('screen-menu');
-      _aboutReturnTimer = null;
-    }, 34000);
   },
 
   showAbout() {
