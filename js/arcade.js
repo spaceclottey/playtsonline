@@ -308,7 +308,7 @@ const Arcade = {
         clearTimeout(_trailerControlsTimer);
         _trailerControlsTimer = setTimeout(() => {
           trailerScreen.classList.remove('controls-visible');
-        }, 3000);
+        }, 1000);
       }, { passive: true });
     }
 
@@ -398,18 +398,16 @@ const Arcade = {
       });
     }
 
-    // Menu button hover beep
+    // Menu button hover beep (desktop only)
     const menuBeep = document.getElementById('audio-menu-beep');
-    document.querySelectorAll('.menu-btn').forEach((btn) => {
-      btn.addEventListener('mouseenter', () => {
-        if (!menuBeep) return;
-        if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
+    if (!('ontouchstart' in window)) {
+      document.querySelectorAll('.menu-btn').forEach((btn) => {
+        btn.addEventListener('mouseenter', () => {
+          if (!menuBeep) return;
+          if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
+        });
       });
-      btn.addEventListener('touchstart', () => {
-        if (!menuBeep) return;
-        if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
-      }, { passive: true });
-    });
+    }
 
     // Dynamic copyright year
     const yearEl = document.getElementById('copyright-year');

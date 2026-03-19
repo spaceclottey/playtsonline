@@ -413,7 +413,13 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   line-height: 1;
 }
 
-#screen-trailer:hover .trailer-ctrl-btn,
+@media (hover: hover) {
+  #screen-trailer:hover .trailer-ctrl-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 #screen-trailer.controls-visible .trailer-ctrl-btn {
   opacity: 1;
   pointer-events: auto;
@@ -429,19 +435,8 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(170,255,0,0.4);
-  color: rgba(170,255,0,0.85);
-  font-size: clamp(1rem, 2vw, 1.1rem);
-  border-radius: 0rem;
-  cursor: pointer;
+  transform: none;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4em 0.5em;
-  line-height: 1;
-  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
 #trailer-back {
@@ -449,7 +444,13 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   pointer-events: none;
 }
 
-#screen-trailer:hover #trailer-back,
+@media (hover: hover) {
+  #screen-trailer:hover #trailer-back {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 #screen-trailer.controls-visible #trailer-back {
   opacity: 1;
   pointer-events: auto;
