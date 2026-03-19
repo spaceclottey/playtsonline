@@ -47,6 +47,7 @@ let _onLoadCode = null;
 let _aboutAutoScrollFrame = null;
 let _aboutReturnTimer = null;
 
+
 // Trailer controls auto-hide timer
 let _trailerControlsTimer = null;
 
@@ -337,6 +338,7 @@ const Arcade = {
         if (video) { video.pause(); video.src = ''; }
         const icon = document.getElementById('trailer-pause-icon');
         if (icon) icon.querySelector('path').setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+        if (!_themeMuted) document.getElementById('audio-theme')?.play().catch(() => {});
         _showScreen('screen-menu');
       });
 
@@ -345,6 +347,7 @@ const Arcade = {
     if (trailerVideo) {
       trailerVideo.addEventListener('ended', () => {
         trailerVideo.src = '';
+        if (!_themeMuted) document.getElementById('audio-theme')?.play().catch(() => {});
         _showScreen('screen-menu');
       });
     }
@@ -369,17 +372,60 @@ const Arcade = {
         }
       });
 
+    // Mute/unmute theme music
+    const muteBtn = document.getElementById('btn-mute');
+    const iconMuted = document.getElementById('icon-muted');
+    const iconUnmuted = document.getElementById('icon-unmuted');
+    const audioTheme = document.getElementById('audio-theme');
+    let _themeMuted = true;
+
+    if (muteBtn && audioTheme) {
+      audioTheme.loop = true;
+      audioTheme.volume = 0.22;
+      muteBtn.addEventListener('click', () => {
+        _themeMuted = !_themeMuted;
+        if (_themeMuted) {
+          audioTheme.pause();
+          iconMuted.style.display = '';
+          iconUnmuted.style.display = 'none';
+          muteBtn.setAttribute('aria-label', 'Unmute');
+        } else {
+          audioTheme.play().catch(() => {});
+          iconMuted.style.display = 'none';
+          iconUnmuted.style.display = '';
+          muteBtn.setAttribute('aria-label', 'Mute');
+        }
+      });
+    }
+
     // Menu button hover beep
     const menuBeep = document.getElementById('audio-menu-beep');
     document.querySelectorAll('.menu-btn').forEach((btn) => {
       btn.addEventListener('mouseenter', () => {
         if (!menuBeep) return;
-        menuBeep.cloneNode().play().catch(() => {});
+        if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
       });
+      btn.addEventListener('touchstart', () => {
+        if (!menuBeep) return;
+        if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
+      }, { passive: true });
     });
+
+    // Dynamic copyright year
+    const yearEl = document.getElementById('copyright-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 
     // Start on menu screen
     _showScreen('screen-menu');
+
+    // Hold on first-frame stills, then swap to animated GIFs after 5s
+    setTimeout(() => {
+      const niko = document.getElementById('char-niko');
+      if (niko) niko.src = 'assets/gifs/niko_menu.gif';
+      const al = document.getElementById('char-angie-lucia');
+      if (al) al.src = 'assets/gifs/angie_lucia_menu.gif';
+    }, 5000);
+
   },
 
   /**
@@ -405,6 +451,9 @@ const Arcade = {
       clearTimeout(_aboutReturnTimer);
       _aboutReturnTimer = null;
     }
+
+    const audioTheme = document.getElementById('audio-theme');
+    if (audioTheme) audioTheme.pause();
 
     const video = document.getElementById('trailer-video');
     if (video) {
@@ -441,6 +490,7 @@ const Arcade = {
 <p>They play a game that hasn't been touched in a very, very long time.</p>
 <p>Fall semester can't come soon enough... if it comes at all.</p>
 <p>Can you make all the right choices? Or will you ensnare the characters in webs of tangled truths?</p>
+<p style="margin-top: 3em">Play through the full interactive film.<br><br>Summer 2026.</p>
 <div class="about-trail-space"></div>
 `;
     about.scrollTop = 0;

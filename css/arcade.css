@@ -9,6 +9,15 @@
      arcade_bottom.png: 3856 × 4309  (aspect-ratio: 3856/4309)
 */
 
+#copyright-line {
+  margin: 0;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  width: 100%;
+}
+
 html, body {
   width: 100%;
   min-height: 100%;
@@ -138,6 +147,49 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   color: var(--color-lime);
   gap: 0.5em;
   padding: 6%;
+  position: relative;
+}
+
+#char-niko {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 13%;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+#char-angie-lucia {
+  position: absolute;
+  bottom: -1px;
+  right: 5%;
+  height: 16%;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+#btn-mute {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(170,255,0,0.4);
+  color: rgba(170,255,0,0.85);
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  border-radius: 0;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4em 0.5em;
+  line-height: 1;
+  transition: background 0.15s ease;
+}
+
+#btn-mute:hover {
+  background: rgba(0,0,0,0.8);
+  color: #fff;
 }
 
 #menu-pixel-art {
@@ -372,10 +424,7 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   color: #fff;
 }
 
-#trailer-back {
-  display: none;
-}
-
+#trailer-back,
 #notify-cancel-btn {
   position: absolute;
   top: 8px;
@@ -392,9 +441,21 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   justify-content: center;
   padding: 0.4em 0.5em;
   line-height: 1;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
+#trailer-back {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#screen-trailer:hover #trailer-back,
+#screen-trailer.controls-visible #trailer-back {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#trailer-back:hover,
 #notify-cancel-btn:hover {
   background: rgba(0,0,0,0.8);
   color: #fff;
@@ -417,7 +478,7 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   line-height: 2.6;
   letter-spacing: 0.1em;
   text-align: center;
-  font-size: clamp(1.1rem, 3.5vw, 1.7rem);
+  font-size: clamp(0.5rem, 1.9vw, 1.4rem);
   text-shadow: 0 0 18px rgba(170,255,0,0.12);
   padding: 0 8%;
   box-sizing: border-box;

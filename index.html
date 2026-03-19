@@ -43,10 +43,14 @@
 
         <!-- Menu screen (default) -->
         <div id="screen-menu" class="screen-state active">
-          <!-- <div id="menu-pixel-art"> -->
-            <!-- PLACEHOLDER: pixel art characters image -->
-            <!-- <img src="assets/images/characters_pixel.png" alt=""> -->
-          <!-- </div> -->
+          <img id="char-niko" src="assets/gifs/niko_menu_frame_1.png" alt="" aria-hidden="true">
+          <img id="char-angie-lucia" src="assets/gifs/angie_lucia_menu_frame_1.png" alt="" aria-hidden="true">
+          <button id="btn-mute" aria-label="Unmute">
+            <!-- muted icon (default) -->
+            <svg id="icon-muted" viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" aria-hidden="true"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+            <!-- unmuted icon (hidden by default) -->
+            <svg id="icon-unmuted" viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" aria-hidden="true" style="display:none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
           <nav id="menu-nav" aria-label="Main menu">
             <button id="btn-trailer" class="menu-btn">TRAILER</button>
             <button id="btn-about"   class="menu-btn">ABOUT</button>
@@ -216,7 +220,7 @@
   <!-- =====================================================================
        SECTION 2: Credits (always reachable by scrolling)
        ===================================================================== -->
-  <section id="credits-section" aria-label="Credits">
+  <section id="credits-section" style="display:none" aria-label="Credits">
     <div id="credits-text">
       <h2>TETHERSNIPE</h2>
       <ul>
@@ -243,14 +247,15 @@
         <li>Photography: Indigo Shi</li>
         <li>The Dooleys Players 2025-26 board</li>
       </ul>
-      <p class="credits-year">&copy; 2026 Tethersnipe</p>
     </div>
   </section>
+
+  <p id="copyright-line">&copy; <span id="copyright-year"></span> Tethersnipe</p>
 
   <!-- =====================================================================
        SECTION 3: Save / play code
        ===================================================================== -->
-  <section id="save-section" aria-label="Play code">
+  <section id="save-section" aria-label="Play code" style="display:none">
     <div id="save-container">
       <p>
         Your play code:
@@ -278,7 +283,7 @@
        PLACEHOLDER: replace src with real audio files
        ===================================================================== -->
   <audio id="audio-menu-beep"   src="assets/audio/menu_beep.mp3"          preload="auto" aria-hidden="true"></audio>
-  <audio id="audio-theme"       src="assets/audio/theme_song.mp3"         preload="none" aria-hidden="true"></audio>
+  <audio id="audio-theme"       src="assets/audio/tethersnipe_theme_full.m4a" preload="auto" aria-hidden="true"></audio>
   <audio id="audio-eye-close"   src="assets/audio/eye_close.mp3"           preload="none" aria-hidden="true"></audio>
   <audio id="audio-decision-10" src="assets/audio/decision_noise_10s.mp3"  preload="none" aria-hidden="true"></audio>
   <audio id="audio-decision-25" src="assets/audio/decision_noise_25s.mp3"  preload="none" aria-hidden="true"></audio>
