@@ -435,8 +435,19 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   position: absolute;
   top: 8px;
   left: 8px;
-  transform: none;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(170,255,0,0.4);
+  color: rgba(170,255,0,0.85);
+  font-family: var(--font-main);
+  font-size: clamp(0.6rem, 1.8vw, 1rem);
+  padding: 0.4em 0.6em;
+  cursor: pointer;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: opacity 0.15s ease;
 }
 
 #trailer-back {

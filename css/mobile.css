@@ -69,6 +69,11 @@
   #credits-section {
     padding: 2rem 1rem;
   }
+
+  /* About text: larger on small screens so it fills the arcade screen */
+  #about-text {
+    font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+  }
 }
 
 /* ---------------------------------------------------------------------------
