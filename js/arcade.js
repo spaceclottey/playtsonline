@@ -146,46 +146,60 @@ function _closeCommentary() {
 // ---------------------------------------------------------------------------
 
 function _revealChoiceOnMobile() {
-  if (window.innerWidth >= 768) return;
-
-  // Exit fullscreen first
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {});
-  }
-
-  // Smooth-scroll the control panel into view
-  const btnRegion = document.getElementById('button-region');
-  if (btnRegion) {
-    btnRegion.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    btnRegion.classList.add('button-region--pulse');
-    setTimeout(() => btnRegion.classList.remove('button-region--pulse'), 2000);
-  }
+  // No-op: the mobile choice buttons now appear inline at the bottom of
+  // the video area, so they're already visible — no scroll-reveal needed.
+  // The earlier implementation scrolled #button-region (the cabinet
+  // joystick panel) into view and pulsed it, which made sense when
+  // choices were going to live on the cabinet itself; with the inline
+  // approach it just yanks the user away from where the buttons are.
+  // Left as a function so Arcade.onChoiceActive() still has something to
+  // call — easy hook to bring behavior back later if the cabinet-
+  // dashboard redesign needs it.
 }
 
 // ---------------------------------------------------------------------------
 // Fullscreen
 // ---------------------------------------------------------------------------
 
+// SVG paths for the fullscreen icon swap (expand → compress).
+const FS_EXPAND_PATH   = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+const FS_COMPRESS_PATH = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
+
+function _setFullscreenIcon(isFs) {
+  const path = document.querySelector('#fullscreen-btn svg path');
+  if (path) path.setAttribute('d', isFs ? FS_COMPRESS_PATH : FS_EXPAND_PATH);
+}
+
 function _toggleFullscreen() {
-  // Exit if already fullscreen.
+  const target = document.getElementById('screen-video');
+  if (!target) return;
+
+  // Mobile: use CSS-only pseudo-fullscreen. iOS native fullscreen hides
+  // our custom controls + choice overlay, pauses on exit, and renders the
+  // next clip in the top-left corner after a linkScene src swap. CSS
+  // fixed-position dodges all three.
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    const entering = !target.classList.contains('pseudo-fs');
+    target.classList.toggle('pseudo-fs', entering);
+    document.body.classList.toggle('pseudo-fs-active', entering);
+    _setFullscreenIcon(entering);
+    return;
+  }
+
+  // Desktop: real Fullscreen API on #screen-video so the overlay comes
+  // along. Falls back to the <video> tag on browsers that reject the div.
   if (document.fullscreenElement || document.webkitFullscreenElement) {
     if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     return;
   }
-
-  // Try fullscreen on #screen-video so the overlay choice buttons + controls
-  // come along. iOS Safari rejects this and only allows the <video> tag, so
-  // fall back to webkitEnterFullscreen on the video element there (overlay
-  // won't be visible in that mode, but at least fullscreen works).
-  const target = document.getElementById('screen-video');
-  const video  = document.getElementById('video-main');
+  const video = document.getElementById('video-main');
   const useVideoFallback = () => {
     if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
   };
-  if (target && target.requestFullscreen) {
+  if (target.requestFullscreen) {
     target.requestFullscreen().catch(useVideoFallback);
-  } else if (target && target.webkitRequestFullscreen) {
+  } else if (target.webkitRequestFullscreen) {
     try { target.webkitRequestFullscreen(); } catch (e) { useVideoFallback(); }
   } else {
     useVideoFallback();

@@ -30,12 +30,11 @@
        - it forces us to exit iOS fullscreen on choice arm, which pauses
          the video, and re-entering fullscreen on linkScene transitions
          renders the next clip in the top-left corner
-     So on mobile we drop fullscreen entirely (hide the button) and render
-     the two choices as a pair of compact buttons pinned to the bottom of
-     the video area. The video keeps playing untouched behind them. */
-  #fullscreen-btn {
-    display: none;
-  }
+     So on mobile we use a *pseudo-fullscreen*: a CSS-only fixed-position
+     overlay (#screen-video.pseudo-fs) that fills the viewport without
+     calling iOS's Fullscreen API. The choice buttons keep working because
+     they're positioned within #screen-video — which is now the viewport.
+     See _toggleFullscreen() in arcade.js. */
 
   .choice-button {
     /* Clear the half-screen positioning from the base rule */
@@ -79,6 +78,41 @@
   @keyframes throb-mobile-urgent {
     0%, 100% { filter: brightness(0.95); }
     50%      { filter: brightness(1.35); }
+  }
+
+  /* -------------------------------------------------------------------
+     Pseudo-fullscreen: the fullscreen button on mobile flips #screen-video
+     into a fixed, viewport-filling overlay (no iOS Fullscreen API).
+     The video uses object-fit: contain so it fills the wider edge when
+     the user rotates the phone to landscape — no rotation API needed,
+     just CSS responding to the new viewport. All overlay controls (back,
+     pause, skip, choice buttons) keep their existing positions because
+     they're laid out relative to #screen-video, which is now the screen. */
+  #screen-video.pseudo-fs {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;     /* dvh dodges iOS Safari URL-bar jump */
+    z-index: 9999 !important;
+    background: #000;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #screen-video.pseudo-fs #video-main {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Lock page scroll while the overlay is up so iOS rubber-band doesn't
+     drag the cabinet UI into view behind the video. */
+  body.pseudo-fs-active {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 
   /* Ensure the unfilmed panels stack vertically if the screen is very narrow */

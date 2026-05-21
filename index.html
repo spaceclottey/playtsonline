@@ -2,11 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Tethersnipe — Play Online</title>
   <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
   <link rel="shortcut icon" href="assets/images/favicon_io/favicon.ico" type="image/x-icon">
+
+  <!-- "Add to Home Screen" support: launching from the home-screen icon
+       runs the site in standalone (PWA) mode with no Safari chrome at
+       all — true edge-to-edge fullscreen. This is the only way to fully
+       remove the iOS address-bar / tab UI; the regular Safari tab will
+       always show some chrome. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tethersnipe">
+  <meta name="theme-color" content="#0a0014">
+  <link rel="apple-touch-icon" href="assets/images/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="assets/images/favicon_io/site.webmanifest">
   <!-- Google Analytics — replace G-JGC4DNDYWE with your real Measurement ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-JGC4DNDYWE"></script>
   <script>
