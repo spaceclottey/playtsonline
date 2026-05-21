@@ -43,6 +43,9 @@ let _aboutAutoScrollFrame = null;
 let _aboutReturnTimer = null;
 let _aboutTypeTimeout = null;
 
+// Credits auto-return to menu after scroll completes
+let _creditsReturnTimer = null;
+
 // Theme-music mute state — module-scoped so other modules (main.js) can
 // sync it via Arcade.setThemeMusicPlaying(true/false).
 let _themeMuted = true;
@@ -802,14 +805,25 @@ const Arcade = {
         audio.play().catch(() => {});
       }
     }
+    // Auto-return to MORE menu after credits finish (157s animation + 3s spacer)
+    if (_creditsReturnTimer) clearTimeout(_creditsReturnTimer);
+    _creditsReturnTimer = setTimeout(() => {
+      Arcade.hideCredits();
+      _showScreen('screen-more');
+      _creditsReturnTimer = null;
+    }, 160000); // 157s animation + 3s pause = 160s total
   },
 
   /**
    * Hide the credits scroll — stop animation, pause audio, reset state
    * so the next visit replays cleanly from the top. Restore theme music
-   * if it was playing before.
+   * if it was playing before. Cancel any pending auto-return timer.
    */
   hideCredits() {
+    if (_creditsReturnTimer) {
+      clearTimeout(_creditsReturnTimer);
+      _creditsReturnTimer = null;
+    }
     const roll = document.querySelector('#screen-credits .credits-roll');
     if (roll) roll.classList.remove('rolling');
     const audio = document.getElementById('audio-credits');
