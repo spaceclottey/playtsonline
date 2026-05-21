@@ -22,3 +22,6 @@ assets/thumbnails/*.mov
 *.swp
 *.swo
 Thumbs.db
+
+# Claude Code local dev config (preview server, no-cache helpers)
+.claude/

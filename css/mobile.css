@@ -24,13 +24,6 @@
     width: 13%;
   }
 
-  /* Skip buttons: hide on very small screens to reduce clutter */
-  @media (max-width: 400px) {
-    .skip-btn {
-      display: none;
-    }
-  }
-
   /* Ensure the unfilmed panels stack vertically if the screen is very narrow */
   @media (max-width: 380px) {
     #screen-unfilmed {

@@ -114,16 +114,14 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   border: 1px solid rgba(170,255,0,0.5);
   color: rgba(170,255,0,0.85);
   font-family: var(--font-main);
-  font-size: clamp(0.7rem, 1.6vw, 1rem);
-  padding: 0.4em 0.55em;
+  font-size: clamp(0.6rem, 1.8vw, 1rem);
+  padding: 0.4em 0.6em;
   cursor: pointer;
   z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  min-width: 2.5em;
-  min-height: 2.5em;
   width: auto;
   height: auto;
 }
@@ -960,13 +958,11 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
    Touch targets are also bumped to be tap-friendly (~44px-ish).
    --------------------------------------------------------------------------- */
 @media (hover: none) {
-  /* Bigger touch targets for the in-video control row. */
+  /* Match the in-video control row to the corner buttons (same size). */
   .skip-btn,
   #btn-pause {
-    font-size: clamp(0.8rem, 3vw, 1rem);
-    padding: 0.6em 0.7em;
-    min-width: 2.6em;
-    min-height: 2.6em;
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    padding: 0.55em 0.7em;
   }
 
   /* Bigger top-corner buttons too. */
