@@ -75,17 +75,28 @@ const Choice = {
     if (_greenBtn) {
       _greenBtn.setAttribute('aria-label', 'Green: ' + greenLabel);
       _greenBtn.setAttribute('data-label', greenLabel);
+      _greenBtn.textContent = greenLabel;
     }
     if (_redBtn) {
       _redBtn.setAttribute('aria-label', 'Red: ' + redLabel);
       _redBtn.setAttribute('data-label', redLabel);
+      _redBtn.textContent = redLabel;
     }
 
+    // 500ms grace period: buttons are visible but ignore clicks, so a stray
+    // in-flight click from spamming the skip-forward button doesn't land on
+    // the choice the instant it arms.
+    const GRACE_MS = 500;
+    const armedAt = Date.now();
     _greenClickHandler = () => {
-      if (!_isFake) onChoose('green');
+      if (_isFake) return;
+      if (Date.now() - armedAt < GRACE_MS) return;
+      onChoose('green');
     };
     _redClickHandler = () => {
-      if (!_isFake) onChoose('red');
+      if (_isFake) return;
+      if (Date.now() - armedAt < GRACE_MS) return;
+      onChoose('red');
     };
 
     _greenBtn && _greenBtn.addEventListener('click', _greenClickHandler);
@@ -177,22 +188,35 @@ const Choice = {
   },
 
   /**
+   * Toggles the "urgent" visual state on both buttons (last few seconds of
+   * the countdown — used by main.js as the choice timer winds down).
+   */
+  setUrgent(active) {
+    if (_greenBtn) _greenBtn.classList.toggle('urgent', !!active);
+    if (_redBtn)   _redBtn.classList.toggle('urgent', !!active);
+  },
+
+  /**
    * Hides choice UI and resets button state.
    */
   hideChoice() {
     _isFake = false;
     _clearHandlers();
     _setButtonsEnabled(false);
+    if (_greenBtn) _greenBtn.classList.remove('urgent');
+    if (_redBtn)   _redBtn.classList.remove('urgent');
 
     if (_greenBtn) {
       _greenBtn.classList.remove('choice-button--animating');
       _greenBtn.removeAttribute('data-label');
       _greenBtn.setAttribute('aria-label', 'Green');
+      _greenBtn.textContent = '';
     }
     if (_redBtn) {
       _redBtn.classList.remove('choice-button--animating');
       _redBtn.removeAttribute('data-label');
       _redBtn.setAttribute('aria-label', 'Red');
+      _redBtn.textContent = '';
     }
 
     _choiceScreenUnfilmed && _choiceScreenUnfilmed.classList.remove('active');

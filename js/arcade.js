@@ -1,8 +1,3 @@
-if (typeof window !== 'undefined') {
-  window.__arcade_load_count = (window.__arcade_load_count || 0) + 1;
-  console.log('arcade.js loaded', window.__arcade_load_count);
-}
-
 // arcade.js — Machine-level behavior: fullscreen, mobile reveal,
 // menu navigation, commentary unlock, opening sequence.
 
@@ -46,16 +41,48 @@ let _onLoadCode = null;
 // About auto-scroll state
 let _aboutAutoScrollFrame = null;
 let _aboutReturnTimer = null;
+let _aboutTypeTimeout = null;
 
+// Theme-music mute state — module-scoped so other modules (main.js) can
+// sync it via Arcade.setThemeMusicPlaying(true/false).
+let _themeMuted = true;
 
-// Trailer controls auto-hide timer
-let _trailerControlsTimer = null;
+// ---------------------------------------------------------------------------
+// Procedural blip — Web Audio API, no file needed.
+// Short square-wave tone, classic CRT-game character chirp.
+// ---------------------------------------------------------------------------
+let _audioCtx = null;
+function _ensureAudioCtx() {
+  if (!_audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) _audioCtx = new AC();
+  }
+  return _audioCtx;
+}
+function _blip(freq, duration) {
+  const ctx = _ensureAudioCtx();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = freq;
+  // Quick attack/decay envelope so it sounds like a "blip" not a tone.
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.045, t + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + duration);
+}
+
 
 // ---------------------------------------------------------------------------
 // Screen state management
 // ---------------------------------------------------------------------------
 
-const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify'];
+const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify', 'screen-demoend', 'screen-playmenu'];
 
 function _showScreen(id) {
   const screens = document.querySelectorAll('.screen-state');
@@ -140,10 +167,28 @@ function _revealChoiceOnMobile() {
 // ---------------------------------------------------------------------------
 
 function _toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    _arcadeSection && _arcadeSection.requestFullscreen().catch(() => {});
+  // Exit if already fullscreen.
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    return;
+  }
+
+  // Try fullscreen on #screen-video so the overlay choice buttons + controls
+  // come along. iOS Safari rejects this and only allows the <video> tag, so
+  // fall back to webkitEnterFullscreen on the video element there (overlay
+  // won't be visible in that mode, but at least fullscreen works).
+  const target = document.getElementById('screen-video');
+  const video  = document.getElementById('video-main');
+  const useVideoFallback = () => {
+    if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+  };
+  if (target && target.requestFullscreen) {
+    target.requestFullscreen().catch(useVideoFallback);
+  } else if (target && target.webkitRequestFullscreen) {
+    try { target.webkitRequestFullscreen(); } catch (e) { useVideoFallback(); }
   } else {
-    document.exitFullscreen().catch(() => {});
+    useVideoFallback();
   }
 }
 
@@ -170,16 +215,33 @@ const Arcade = {
     _screenCodeprompt   = document.getElementById('screen-codeprompt');
     _fullscreenBtn      = document.getElementById('fullscreen-btn');
 
-    // Fullscreen toggle
-    // Hide fullscreen button and do not wire it for now.
+    // Fullscreen toggle — fullscreens the whole arcade section, so the choice
+    // overlay buttons stay visible during the last 10s without popping out.
     if (_fullscreenBtn) {
-      _fullscreenBtn.style.display = 'none';
+      _fullscreenBtn.addEventListener('click', _toggleFullscreen);
     }
 
     // Menu buttons
+    // PLAY now opens a sub-menu with NEW GAME / RESUME GAME, instead of
+    // starting the game directly.
     document.getElementById('btn-play')
       && document.getElementById('btn-play').addEventListener('click', () => {
+        _showScreen('screen-playmenu');
+      });
+
+    document.getElementById('btn-newgame')
+      && document.getElementById('btn-newgame').addEventListener('click', () => {
         if (_onPlay) _onPlay();
+      });
+
+    document.getElementById('btn-resumegame')
+      && document.getElementById('btn-resumegame').addEventListener('click', () => {
+        Arcade.showCodePrompt();
+      });
+
+    document.getElementById('playmenu-back')
+      && document.getElementById('playmenu-back').addEventListener('click', () => {
+        _showScreen('screen-menu');
       });
 
     document.getElementById('btn-trailer')
@@ -190,6 +252,15 @@ const Arcade = {
     document.getElementById('btn-about')
       && document.getElementById('btn-about').addEventListener('click', () => {
         Arcade.showAbout();
+      });
+
+    // About-screen back button — bail out of the typewriter early.
+    document.getElementById('about-back')
+      && document.getElementById('about-back').addEventListener('click', () => {
+        if (_aboutAutoScrollFrame) { cancelAnimationFrame(_aboutAutoScrollFrame); _aboutAutoScrollFrame = null; }
+        if (_aboutReturnTimer)     { clearTimeout(_aboutReturnTimer);             _aboutReturnTimer = null; }
+        if (_aboutTypeTimeout)     { clearTimeout(_aboutTypeTimeout);             _aboutTypeTimeout = null; }
+        _showScreen('screen-menu');
       });
 
     document.getElementById('btn-credits-menu')
@@ -207,7 +278,7 @@ const Arcade = {
 
     document.getElementById('resume-cancel-btn')
       && document.getElementById('resume-cancel-btn').addEventListener('click', () => {
-        _showScreen('screen-menu');
+        _showScreen('screen-playmenu');
       });
 
     // Notify screen
@@ -300,17 +371,23 @@ const Arcade = {
       greenBtn.addEventListener('touchend', cancelHold);
     }
 
-    // Trailer screen tap → show controls briefly on mobile
-    const trailerScreen = document.getElementById('screen-trailer');
-    if (trailerScreen) {
-      trailerScreen.addEventListener('touchstart', () => {
-        trailerScreen.classList.add('controls-visible');
-        clearTimeout(_trailerControlsTimer);
-        _trailerControlsTimer = setTimeout(() => {
-          trailerScreen.classList.remove('controls-visible');
-        }, 1000);
+    // Touch-screen tap-to-reveal: any tap inside a screen surfaces its
+    // controls (back / skip / pause / fullscreen / etc.) for a few seconds
+    // and they fade back out. Mirrors how native mobile video players behave.
+    const _setupTapReveal = (screen, ms) => {
+      if (!screen) return;
+      let timer = null;
+      screen.addEventListener('touchstart', () => {
+        screen.classList.add('controls-visible');
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          screen.classList.remove('controls-visible');
+        }, ms);
       }, { passive: true });
-    }
+    };
+    _setupTapReveal(document.getElementById('screen-trailer'), 1000);
+    _setupTapReveal(document.getElementById('screen-video'),   3000);
+    _setupTapReveal(document.getElementById('screen-about'),   3000);
 
     // Trailer pause button
     const trailerPauseBtn = document.getElementById('trailer-pause');
@@ -377,11 +454,10 @@ const Arcade = {
     const iconMuted = document.getElementById('icon-muted');
     const iconUnmuted = document.getElementById('icon-unmuted');
     const audioTheme = document.getElementById('audio-theme');
-    let _themeMuted = true;
 
     if (muteBtn && audioTheme) {
       audioTheme.loop = true;
-      audioTheme.volume = 0.22;
+      audioTheme.volume = 0.11;
       muteBtn.addEventListener('click', () => {
         _themeMuted = !_themeMuted;
         if (_themeMuted) {
@@ -398,13 +474,50 @@ const Arcade = {
       });
     }
 
-    // Menu button hover beep (desktop only)
+    // Menu button hover beep — only when theme music is off.
+    //
+    // Note on the autoplay policy: browsers will not play audio until a user
+    // gesture (click/keypress/touch) has occurred on the page. Hover is NOT
+    // a gesture. To avoid silent hover-beeps on the very first menu visit,
+    // we prime the audio element by play()/pause()ing it at volume 0 on
+    // the first real gesture anywhere on the document. After that, the
+    // browser remembers and lets us play() from any handler.
     const menuBeep = document.getElementById('audio-menu-beep');
-    if (!('ontouchstart' in window)) {
+    if (menuBeep) {
+      let _audioPrimed = false;
+      const _primeAudio = () => {
+        if (_audioPrimed) return;
+        _audioPrimed = true;
+        const v = menuBeep.volume;
+        menuBeep.volume = 0;
+        const p = menuBeep.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => {
+            menuBeep.pause();
+            menuBeep.currentTime = 0;
+            menuBeep.volume = v;
+          }).catch(() => { menuBeep.volume = v; });
+        }
+        // Also resume the Web Audio context used by the about-screen typewriter
+        // so its first blip plays without delay.
+        if (_audioCtx && _audioCtx.state === 'suspended') {
+          _audioCtx.resume().catch(() => {});
+        }
+        document.removeEventListener('pointerdown', _primeAudio, true);
+        document.removeEventListener('keydown',     _primeAudio, true);
+        document.removeEventListener('touchstart',  _primeAudio, true);
+      };
+      document.addEventListener('pointerdown', _primeAudio, true);
+      document.addEventListener('keydown',     _primeAudio, true);
+      document.addEventListener('touchstart',  _primeAudio, true);
+
       document.querySelectorAll('.menu-btn').forEach((btn) => {
         btn.addEventListener('mouseenter', () => {
-          if (!menuBeep) return;
-          if (_themeMuted) { const beep = menuBeep.cloneNode(); beep.play().catch(() => {}); }
+          if (!_themeMuted) return;
+          try {
+            menuBeep.currentTime = 0;
+            menuBeep.play().catch(() => {});
+          } catch (e) {}
         });
       });
     }
@@ -470,7 +583,7 @@ const Arcade = {
       return;
     }
 
-    // Cancel any previous about auto-scroll/return timers.
+    // Cancel any previous about timers.
     if (_aboutAutoScrollFrame) {
       cancelAnimationFrame(_aboutAutoScrollFrame);
       _aboutAutoScrollFrame = null;
@@ -479,50 +592,90 @@ const Arcade = {
       clearTimeout(_aboutReturnTimer);
       _aboutReturnTimer = null;
     }
+    if (_aboutTypeTimeout) {
+      clearTimeout(_aboutTypeTimeout);
+      _aboutTypeTimeout = null;
+    }
 
-    about.innerHTML = `
-<div class="about-lead-space"></div>
-<p>A manager of a dying arcade takes initiative to follow her moral convictions amidst the recession.</p>
-<p>A jaded entomologist clocks in after committing academic fraud for breakfast.</p>
-<p>A listless teenager suffocated by boredom has nothing better to do.</p>
-<p>They play a game that hasn't been touched in a very, very long time.</p>
-<p>Fall semester can't come soon enough... if it comes at all.</p>
-<p>Can you make all the right choices? Or will you ensnare the characters in webs of tangled truths?</p>
-<p style="margin-top: 3em">Play through the full interactive film.<br><br>Summer 2026.</p>
-<div class="about-trail-space"></div>
-`;
-    about.scrollTop = 0;
+    // Script — each entry is one paragraph. `gap` is ms pause after the
+    // paragraph finishes before the next one starts.
+    const SCRIPT = [
+      { text: 'A manager of a dying arcade takes initiative to follow her moral convictions amidst the recession.', gap: 700 },
+      { text: 'A jaded entomologist clocks in after committing academic fraud for breakfast.', gap: 700 },
+      { text: 'A listless teenager suffocated by boredom has nothing better to do.', gap: 700 },
+      { text: "They play a game that hasn't been touched in a very, very long time.", gap: 900 },
+      { text: "Fall semester can't come soon enough... if it comes at all.", gap: 900 },
+      { text: 'Can you make all the right choices? Or will you ensnare the characters in webs of tangled truths?', gap: 1200 },
+      { text: 'Play through the full interactive film.', gap: 400, extraTop: true },
+      { text: 'Summer 2026.', gap: 1200 },
+    ];
 
-    const SCROLL_DELAY = 1200;
-    const total = Math.max(0, about.scrollHeight - about.clientHeight);
-    if (total > 0) {
-      const start = performance.now();
-      const duration = 24000;
-      const frame = (ts) => {
-        const elapsed = ts - start - SCROLL_DELAY;
-        if (elapsed < 0) {
-          _aboutAutoScrollFrame = requestAnimationFrame(frame);
-          return;
-        }
-        const progress = Math.min(elapsed / duration, 1);
-        about.scrollTop = Math.round(total * progress);
-        if (progress < 1) {
-          _aboutAutoScrollFrame = requestAnimationFrame(frame);
-        } else {
-          _aboutAutoScrollFrame = null;
+    // Tuning
+    const CHAR_DELAY = 32;        // ms per character
+    const PUNCT_PAUSE = 180;      // extra pause after , . ! ? ;
+    const BLIP_EVERY = 2;         // play a blip every N chars (lower = noisier)
+    const BLIP_FREQ_BASE = 720;   // Hz
+    const BLIP_FREQ_JITTER = 80;  // random +/- variation, Hz
+    const BLIP_DUR = 0.025;       // seconds
+
+    about.innerHTML = '<div class="about-lead-space"></div>';
+    const leadSpace = about.firstChild;
+    let charCounter = 0;
+
+    function typeParagraph(paraIdx, paraEl, charIdx) {
+      const entry = SCRIPT[paraIdx];
+      if (charIdx >= entry.text.length) {
+        // Paragraph done — wait `gap` ms then move to next.
+        if (paraIdx === SCRIPT.length - 1) {
+          // All done — return to menu after a hold.
           _aboutReturnTimer = setTimeout(() => {
             _showScreen('screen-menu');
             _aboutReturnTimer = null;
-          }, 1000);
+          }, 3500);
+          return;
         }
-      };
-      _aboutAutoScrollFrame = requestAnimationFrame(frame);
-    } else {
-      _aboutReturnTimer = setTimeout(() => {
-        _showScreen('screen-menu');
-        _aboutReturnTimer = null;
-      }, 20000);
+        _aboutTypeTimeout = setTimeout(() => {
+          startParagraph(paraIdx + 1);
+        }, entry.gap);
+        return;
+      }
+      const ch = entry.text[charIdx];
+      paraEl.textContent += ch;
+      // Beep on visible chars, skip the silent ones to avoid spam.
+      if (ch !== ' ' && (charCounter % BLIP_EVERY === 0)) {
+        const jitter = (Math.random() * 2 - 1) * BLIP_FREQ_JITTER;
+        _blip(BLIP_FREQ_BASE + jitter, BLIP_DUR);
+      }
+      charCounter++;
+
+      // Scroll so newest text stays in view if it overflows.
+      if (about.scrollHeight > about.clientHeight) {
+        about.scrollTop = about.scrollHeight;
+      }
+
+      const isPunct = /[,.!?;:]/.test(ch);
+      _aboutTypeTimeout = setTimeout(
+        () => typeParagraph(paraIdx, paraEl, charIdx + 1),
+        CHAR_DELAY + (isPunct ? PUNCT_PAUSE : 0)
+      );
     }
+
+    function startParagraph(paraIdx) {
+      const entry = SCRIPT[paraIdx];
+      const p = document.createElement('p');
+      if (entry.extraTop) p.style.marginTop = '3em';
+      about.insertBefore(p, about.lastChild || null);
+      typeParagraph(paraIdx, p, 0);
+    }
+
+    // Append trailing spacer once so layout stays stable.
+    const trail = document.createElement('div');
+    trail.className = 'about-trail-space';
+    about.appendChild(trail);
+
+    about.scrollTop = 0;
+    // Small lead-in before the first character lands.
+    _aboutTypeTimeout = setTimeout(() => startParagraph(0), 600);
   },
 
   /**
@@ -564,6 +717,52 @@ const Arcade = {
   updatePlayCode(code) {
     const el = document.getElementById('play-code-display');
     if (el) el.textContent = code || '—';
+  },
+
+  /**
+   * Procedural blip — exposes the internal Web Audio function so other
+   * modules (main.js) can play a synthesized beep without depending on an
+   * audio file. freq in Hz, duration in seconds, vol 0..1.
+   */
+  blip(freq = 880, duration = 0.12, vol = 0.35) {
+    const ctx = _ensureAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + duration);
+  },
+
+  /**
+   * Sync the mute-button state with externally-controlled audio playback.
+   * Pass true if the theme music is now playing; false if paused.
+   */
+  setThemeMusicPlaying(playing) {
+    _themeMuted = !playing;
+    const audioTheme = document.getElementById('audio-theme');
+    const iconMuted = document.getElementById('icon-muted');
+    const iconUnmuted = document.getElementById('icon-unmuted');
+    if (playing) {
+      if (audioTheme) {
+        audioTheme.loop = true;
+        audioTheme.volume = 0.11;
+        audioTheme.play().catch(() => {});
+      }
+      if (iconMuted)   iconMuted.style.display   = 'none';
+      if (iconUnmuted) iconUnmuted.style.display = '';
+    } else {
+      if (audioTheme) audioTheme.pause();
+      if (iconMuted)   iconMuted.style.display   = '';
+      if (iconUnmuted) iconUnmuted.style.display = 'none';
+    }
   },
 };
 

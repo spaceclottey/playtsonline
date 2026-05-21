@@ -30,6 +30,10 @@ const SCENE_TO_LETTER = {
   reject_speedrun:            'U',
   god:                        'V',
   heist:                      'W',
+  // Bridge scenes inserted between choice points.
+  postCupOrPaperTowel:           'X',
+  postActsAsLucia:               'Y',
+  postGiveOrDontGiveCigarrette:  'Z',
 };
 
 const LETTER_TO_SCENE = Object.fromEntries(

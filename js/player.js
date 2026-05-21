@@ -9,8 +9,20 @@
 // Default: GitHub Releases
 // Upload MP4s to a release tagged "videos" on your GitHub repo.
 // URL format: https://github.com/spaceclottey/playtsonline/releases/download/videos/
-const VIDEO_BASE_URL =
-  'https://github.com/spaceclottey/playtsonline/releases/download/videos/';
+//
+// On localhost we default to the symlinked ./clips/ folder. Pass ?cdn=1 to
+// force the production R2 URL when you want to test against the real CDN.
+const _IS_TEST_MODE = (typeof window !== 'undefined') && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.search.includes('test=1')
+);
+const _FORCE_CDN = (typeof window !== 'undefined') &&
+  window.location.search.includes('cdn=1');
+const VIDEO_BASE_URL = (_IS_TEST_MODE && !_FORCE_CDN)
+  ? 'clips/'
+  : 'https://videos.tethersnipe.com/';
+if (typeof window !== 'undefined') window.__TEST_MODE = _IS_TEST_MODE;
 
 // ---------------------------------------------------------------------------
 // Internal state
@@ -138,11 +150,22 @@ const Player = {
 
   /**
    * Skip forwards 10 seconds (no-op during active choice).
+   * Hard cap: cannot land within the last 15 seconds of the clip, so the
+   * choice countdown (which arms 10s before the end) is never skipped past.
+   * Any forward seek that would land past (duration - 15) clamps to that point.
    */
   skipForward() {
     if (_choiceActive || !_videoMain) return;
-    const max = _videoMain.duration || Infinity;
-    _videoMain.currentTime = Math.min(max, _videoMain.currentTime + 10);
+    const dur = _videoMain.duration;
+    const target = _videoMain.currentTime + 10;
+    if (!isFinite(dur)) {
+      _videoMain.currentTime = target;
+      return;
+    }
+    const cap = Math.max(0, dur - 15);
+    // Already past the cap: don't move forward at all.
+    if (_videoMain.currentTime >= cap) return;
+    _videoMain.currentTime = Math.min(target, cap);
   },
 
   /**

@@ -52,10 +52,10 @@
             <svg id="icon-unmuted" viewBox="0 0 24 24" fill="currentColor" width="1.2em" height="1.2em" aria-hidden="true" style="display:none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
           </button>
           <nav id="menu-nav" aria-label="Main menu">
+            <button id="btn-play"    class="menu-btn">PLAY</button>
             <button id="btn-trailer" class="menu-btn">TRAILER</button>
             <button id="btn-about"   class="menu-btn">ABOUT</button>
-            <!-- <button id="btn-play"   class="menu-btn" style="display:none">PLAY</button> -->
-            <!-- <button id="btn-resume" class="menu-btn" style="display:none">RESUME</button> -->
+            <button id="btn-resume"  class="menu-btn" style="display:none">RESUME</button>
             <button id="btn-credits-menu" class="menu-btn" style="display:none">CREDITS</button>
             <button id="btn-notify" class="menu-btn menu-btn--notify">GET NOTIFIED</button>
           </nav>
@@ -64,6 +64,9 @@
         <!-- About screen -->
         <div id="screen-about" class="screen-state">
           <div class="about-text" id="about-text"></div>
+          <button id="about-back" aria-label="Back to main menu" title="Back to main menu">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
         </div>
 
         <!-- Trailer screen -->
@@ -92,9 +95,43 @@
           <video id="video-buffer-a" playsinline style="display:none" aria-hidden="true"></video>
           <video id="video-buffer-b" playsinline style="display:none" aria-hidden="true"></video>
           <!-- Skip buttons overlaid on video -->
-          <button id="skip-back"    class="skip-btn" aria-label="Skip back 10 seconds">◄◄</button>
-          <button id="btn-pause"    class="skip-btn" aria-label="Pause">⏸</button>
-          <button id="skip-forward" class="skip-btn" aria-label="Skip forward 10 seconds">►►</button>
+          <button id="video-back"   aria-label="Back to main menu" title="Back to main menu">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <button id="skip-back"    class="skip-btn" aria-label="Skip back 10 seconds"    title="-10s">◄◄</button>
+          <button id="btn-pause"    class="skip-btn" aria-label="Pause"                   title="Play / pause">⏸</button>
+          <button id="skip-forward" class="skip-btn" aria-label="Skip forward 10 seconds" title="+10s">►►</button>
+          <!-- Test-only: skip to t-15 so the choice arms ~5s later. JS reveals
+               this only in test mode (?test=1 / localhost). -->
+          <button id="test-skip-end" class="skip-btn" aria-label="Test: skip to end of scene" title="TEST: skip to end of scene" style="display:none">►|</button>
+          <button id="fullscreen-btn" aria-label="Toggle fullscreen" title="Fullscreen">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+
+          <!-- Choice overlay: green = left half, red = right half. Hidden by
+               default; revealed when Choice.showFixed() un-disables them. -->
+          <button
+            id="btn-green"
+            class="choice-button choice-button--green"
+            disabled
+            aria-label="Green"
+            aria-disabled="true"
+          ></button>
+          <button
+            id="btn-red"
+            class="choice-button choice-button--red"
+            disabled
+            aria-label="Red"
+            aria-disabled="true"
+          ></button>
+        </div>
+
+        <!-- Demo-end screen: shown after the last filmed scene of the playable canon. -->
+        <div id="screen-demoend" class="screen-state">
+          <p>
+            Eager to experience the rest of <em>Tethersnipe</em>?<br><br>
+            Hit <strong>GET NOTIFIED</strong> to be the first to know when the rest is out.
+          </p>
         </div>
 
         <!-- Unfilmed choice screen: two looping panels -->
@@ -129,7 +166,18 @@
           </div>
         </div>
 
-        <!-- Code prompt (for resume without a save) -->
+        <!-- Play sub-menu — shown after the main PLAY button is clicked -->
+        <div id="screen-playmenu" class="screen-state">
+          <nav class="playmenu-nav" aria-label="Play menu">
+            <button id="btn-newgame"    class="menu-btn">NEW GAME</button>
+            <button id="btn-resumegame" class="menu-btn">RESUME GAME</button>
+          </nav>
+          <button id="playmenu-back" aria-label="Back to menu">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Code prompt (resume via play code) -->
         <div id="screen-codeprompt" class="screen-state">
           <h2 class="codeprompt-title">ENTER PLAY CODE</h2>
           <input
@@ -142,10 +190,10 @@
             autocapitalize="characters"
             spellcheck="false"
           >
-          <div class="codeprompt-btns">
-            <button id="resume-code-btn" class="menu-btn">LOAD</button>
-            <button id="resume-cancel-btn" class="menu-btn menu-btn--secondary">CANCEL</button>
-          </div>
+          <button id="resume-code-btn" class="menu-btn">LOAD</button>
+          <button id="resume-cancel-btn" aria-label="Back to play menu">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
         </div>
 
         <!-- Notify screen -->
@@ -166,17 +214,21 @@
 
       </div><!-- /#screen-region -->
 
-      <!-- Bottom half of cabinet (below screen: control panel, buttons) -->
-      <img
-        id="arcade-bottom"
-        src="assets/images/arcade_bottom.png"
-        alt=""
-        draggable="false"
-      >
+      <!-- Bottom-of-cabinet wrap: holds the bottom image AND the interactive
+           overlay layer so percentages on the buttons anchor to the image. -->
+      <div id="bottom-wrap">
 
-      <!-- ── Control panel overlays ── -->
-      <!-- #button-region wraps spider + buttons so mobile scroll-reveal works -->
-      <div id="button-region">
+        <!-- Bottom half of cabinet (below screen: control panel, buttons) -->
+        <img
+          id="arcade-bottom"
+          src="assets/images/arcade_bottom.png"
+          alt=""
+          draggable="false"
+        >
+
+        <!-- ── Control panel overlays ── -->
+        <!-- #button-region wraps spider + buttons so mobile scroll-reveal works -->
+        <div id="button-region">
 
       <!-- Spider eye countdown (centered between buttons) -->
       <div id="spider-region" aria-hidden="true">
@@ -191,28 +243,9 @@
         <!-- PLACEHOLDER: replace src with spider_eyes_N.png variants via CSS classes -->
       </div>
 
-      <!-- Green (left) choice button -->
-      <button
-        id="btn-green"
-        class="choice-button choice-button--green"
-        disabled
-        aria-label="Green"
-        aria-disabled="true"
-      >GREEN</button>
+        </div><!-- /#button-region -->
+      </div><!-- /#bottom-wrap -->
 
-      <!-- Red (right) choice button -->
-      <button
-        id="btn-red"
-        class="choice-button choice-button--red"
-        disabled
-        aria-label="Red"
-        aria-disabled="true"
-      >RED</button>
-
-      </div><!-- /#button-region -->
-
-      <!-- Fullscreen toggle -->
-      <button id="fullscreen-btn" aria-label="Toggle fullscreen">&#x26F6;</button>
 
     </div><!-- /#arcade-container -->
   </section>

@@ -17,47 +17,72 @@ const FILMED_DYNAMIC_CHOICES = [
 // ---------------------------------------------------------------------------
 
 const SCENES = {
+  // Tutorial-half durations are kept at 1 ("has video, but doesn't count toward
+  // the runtime gating thresholds at 68/75 story-minutes"). The countdown
+  // listener uses video.duration directly, not this field.
   start: {
-    duration: 0,
+    duration: 1,
     period: 'noperiod',
     karma: 0,
     requiredChoices: ['cup', 'paperTowel'],
   },
   cup: {
-    duration: 0,
+    duration: 1,
     period: 'noperiod',
     karma: 1,
-    requiredChoices: ['NikoActsAsLucia', 'AngieActsAsLucia'],
+    linkScene: 'postCupOrPaperTowel',
   },
   paperTowel: {
-    duration: 0,
+    duration: 1,
     period: 'noperiod',
     karma: -1,
+    linkScene: 'postCupOrPaperTowel',
+  },
+  postCupOrPaperTowel: {
+    duration: 1,
+    period: 'noperiod',
+    karma: 0,
     requiredChoices: ['NikoActsAsLucia', 'AngieActsAsLucia'],
   },
   NikoActsAsLucia: {
-    duration: 0,
+    duration: 1,
     period: 'noperiod',
     karma: 2,
-    requiredChoices: ['giveCigarrette', 'dontGiveCigarrette'],
+    linkScene: 'postActsAsLucia',
   },
   AngieActsAsLucia: {
-    duration: 0,
+    duration: 1,
     period: 'noperiod',
     karma: -1,
+    linkScene: 'postActsAsLucia',
+  },
+  postActsAsLucia: {
+    duration: 1,
+    period: 'noperiod',
+    karma: 0,
     requiredChoices: ['giveCigarrette', 'dontGiveCigarrette'],
   },
   giveCigarrette: {
-    duration: 45,
+    duration: 1,
     period: 'noperiod',
     karma: -3,
-    requiredChoices: ['speakWithAngie', 'playWithLucia'],
+    linkScene: 'postGiveOrDontGiveCigarrette',
   },
   dontGiveCigarrette: {
-    duration: 45,
+    duration: 1,
     period: 'noperiod',
     karma: 3,
+    linkScene: 'postGiveOrDontGiveCigarrette',
+  },
+  postGiveOrDontGiveCigarrette: {
+    duration: 1,
+    period: 'noperiod',
+    karma: 0,
     requiredChoices: ['speakWithAngie', 'playWithLucia'],
+    // Until the rest of the canon is filmed, this is the last playable scene.
+    // main.js sees `demoEnd` and shows the "to be continued" screen instead
+    // of arming the speakWithAngie / playWithLucia choice.
+    demoEnd: true,
   },
   canon: {
     duration: 45,
@@ -448,6 +473,23 @@ const Branches = {
    */
   calculateKarma(watched) {
     return _calculateKarma(watched);
+  },
+
+  /**
+   * Returns true if the scene is flagged as the demo's last playable scene.
+   * Used to short-circuit choice arming and show the "to be continued" screen.
+   */
+  isDemoEnd(sceneId) {
+    return !!(SCENES[sceneId] && SCENES[sceneId].demoEnd);
+  },
+
+  /**
+   * Returns the linked next scene if the current scene auto-advances
+   * (no choice shown — used for bridge clips like postCupOrPaperTowel).
+   * Returns null if the scene has no linkScene.
+   */
+  getLinkScene(sceneId) {
+    return (SCENES[sceneId] && SCENES[sceneId].linkScene) || null;
   },
 
   /**

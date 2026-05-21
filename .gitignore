@@ -8,6 +8,9 @@
 videos/*.mp4
 videos/*.mov
 
+# Local-testing symlink to ../clips for the ?local fallback
+clips
+
 # Unfilmed choice thumbnails — added as you record them
 assets/thumbnails/*.mp4
 assets/thumbnails/*.mov

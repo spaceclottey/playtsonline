@@ -26,6 +26,10 @@ let _queue = [];
 let _countdownListener = null;
 let _fakeChoiceListener = null;
 
+// Last-5-seconds urgency: throb intensifies + once-per-second beep
+let _urgentTimeout = null;
+let _beepInterval = null;
+
 // ---------------------------------------------------------------------------
 // Display labels for scenes (PLACEHOLDER: replace with real copy)
 // ---------------------------------------------------------------------------
@@ -110,6 +114,36 @@ function _beginScene(sceneId) {
     return;
   }
 
+  // Demo-end scene: skip choices entirely. When the video ends, show the
+  // "to be continued" screen for 5s, then return to the main menu with
+  // the theme music playing.
+  if (Branches.isDemoEnd(sceneId)) {
+    const video = Player.getVideoElement();
+    if (video) {
+      const onEnded = () => {
+        video.removeEventListener('ended', onEnded);
+        _showDemoEnd();
+      };
+      video.addEventListener('ended', onEnded);
+    }
+    return;
+  }
+
+  // Bridge scene: auto-advance to linkScene on 'ended', no choice UI.
+  const linkTarget = Branches.getLinkScene(sceneId);
+  if (linkTarget) {
+    Player.preloadNextScenes(linkTarget, null);
+    const video = Player.getVideoElement();
+    if (video) {
+      const onEnded = () => {
+        video.removeEventListener('ended', onEnded);
+        _playScene(linkTarget);
+      };
+      video.addEventListener('ended', onEnded);
+    }
+    return;
+  }
+
   const [g, r] = Branches.getNextChoices(watched);
   nextGreen = g;
   nextRed = r;
@@ -175,6 +209,21 @@ function _armChoice(countdownSeconds) {
   if (choiceArmed) return;
   choiceArmed = true;
   Player.setChoiceActive(true);
+  const sv = document.getElementById('screen-video');
+  if (sv) sv.classList.add('choice-active');
+
+  // Drop out of fullscreen so the choice overlay is visible (on iOS, native
+  // fullscreen covers the entire screen with just the <video> and nothing
+  // else, so the overlay would otherwise be hidden until the user exits).
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  } else if (document.webkitFullscreenElement) {
+    document.webkitExitFullscreen && document.webkitExitFullscreen();
+  }
+  const vid = Player.getVideoElement();
+  if (vid && vid.webkitDisplayingFullscreen && vid.webkitExitFullscreen) {
+    try { vid.webkitExitFullscreen(); } catch (e) {}
+  }
 
   // Remove the timeupdate countdown listener — no longer needed
   _removeListener(_countdownListener);
@@ -195,15 +244,31 @@ function _armChoice(countdownSeconds) {
   }
 
   Spider.startCountdown((autoColor) => _handleChoice(autoColor), countdownSeconds);
+
+  // Final-5-seconds urgency: intensified throb + once-per-second beep.
+  const urgentDelayMs = Math.max(0, (countdownSeconds - 5) * 1000);
+  _urgentTimeout = setTimeout(() => {
+    Choice.setUrgent(true);
+    // Synthesized beep via Web Audio — louder & more reliable than the mp3.
+    const fire = () => { try { Arcade.blip(1040, 0.16, 0.45); } catch (e) {} };
+    fire();                                    // beep at T-5
+    _beepInterval = setInterval(fire, 1000);   // then T-4, T-3, T-2, T-1
+  }, urgentDelayMs);
 }
 
 function _handleChoice(color) {
   if (!choiceArmed) return; // guard double-fire
   choiceArmed = false;
 
+  // Tear down urgency timers (the choice was made before / at countdown end).
+  if (_urgentTimeout) { clearTimeout(_urgentTimeout); _urgentTimeout = null; }
+  if (_beepInterval)  { clearInterval(_beepInterval); _beepInterval  = null; }
+
   Choice.hideChoice();
   Spider.stopCountdown();
   Player.setChoiceActive(false);
+  const sv = document.getElementById('screen-video');
+  if (sv) sv.classList.remove('choice-active');
 
   // Return to video screen if we showed unfilmed panels
   Arcade.showScreen('screen-video');
@@ -219,6 +284,65 @@ function _handleChoice(color) {
   } else {
     _playScene(chosenId);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Quit back to the main menu — wired to the in-video BACK button.
+// Stops playback, resets state, and starts the menu theme music.
+// ---------------------------------------------------------------------------
+
+function _quitToMenu() {
+  _clearListeners();
+  Player.pause();
+  Spider.stopCountdown();
+  Choice.hideChoice();
+  Player.setChoiceActive(false);
+  choiceArmed = false;
+  _queue = [];
+
+  Arcade.showScreen('screen-menu');
+
+  // Start menu theme music + sync mute-button state.
+  const theme = document.getElementById('audio-theme');
+  if (theme) theme.currentTime = 0;
+  Arcade.setThemeMusicPlaying(true);
+
+  // Reset state so PLAY next time starts fresh.
+  watched = [];
+  currentScene = null;
+}
+
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('video-back');
+    if (backBtn) backBtn.addEventListener('click', _quitToMenu);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Demo end ("to be continued") — last playable scene reached
+// ---------------------------------------------------------------------------
+
+function _showDemoEnd() {
+  // Stop the story video & clear any listeners.
+  _clearListeners();
+  Player.pause();
+  Spider.stopCountdown();
+  Choice.hideChoice();
+  Player.setChoiceActive(false);
+
+  Arcade.showScreen('screen-demoend');
+
+  // After 5 seconds, return to the main menu and start the theme music.
+  setTimeout(() => {
+    Arcade.showScreen('screen-menu');
+    const theme = document.getElementById('audio-theme');
+    if (theme) theme.currentTime = 0;
+    Arcade.setThemeMusicPlaying(true);
+    // Reset state so a fresh PLAY starts from the top.
+    watched = [];
+    currentScene = null;
+  }, 5000);
 }
 
 // ---------------------------------------------------------------------------
@@ -260,28 +384,18 @@ function _drainQueue() {
 function startGame() {
   watched = ['start'];
   _queue = [];
-  Player.setChoiceActive(false);
   Spider.stopCountdown();
   Choice.hideChoice();
-
-  Save.saveState(watched);
-  Arcade.updatePlayCode(Save.encodePlayCode(watched));
   Arcade.showScreen('screen-video');
 
-  // Theme song
+  // Stop menu theme music — story video has its own audio.
   const theme = document.getElementById('audio-theme');
-  if (theme) theme.play().catch(() => {});
+  if (theme) { theme.pause(); theme.currentTime = 0; }
 
-  // 'start' has duration 0 — no video file needed; arm choice immediately
-  currentScene = 'start';
-  const [g, r] = Branches.getNextChoices(watched);
-  nextGreen = g;
-  nextRed = r;
-  Player.preloadNextScenes(g, r);
-
-  // Try to load start.mp4 in case it exists (opening animation)
+  // Play start.mp4; _beginScene sets up the countdown listener so the
+  // cup/paperTowel choice arms 10s before the video ends.
   Player.loadScene('start');
-  _armChoice(25);
+  _beginScene('start');
 }
 
 function resumeGame(watchedArray) {
@@ -334,7 +448,6 @@ window.addEventListener('tethersnipe:scene-ended', (e) => {
 // ---------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("DOM Content Loaded")
   Player.init();
   // Spider.init();
   Choice.init();
@@ -353,11 +466,10 @@ document.addEventListener('DOMContentLoaded', () => {
     onLoadCode: (code) => handleLoadCode(code),
   });
 
-  // Show RESUME button only if a save exists
+  // RESUME on the main menu is replaced by PLAY → RESUME GAME (code prompt).
+  // Always hide the legacy main-menu RESUME button.
   const resumeBtn = document.getElementById('btn-resume');
-  if (resumeBtn) {
-    resumeBtn.style.display = Save.loadStateFromStorage() ? '' : 'none';
-  }
+  if (resumeBtn) resumeBtn.style.display = 'none';
 
   // Center the screen vertically in the viewport on load
   const screenRegion = document.getElementById('screen-region');
@@ -366,11 +478,76 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// TEST MODE — scene-level forward/back for quickly walking choice routing
+// ---------------------------------------------------------------------------
+
+/**
+ * Test-only: skip ahead to the next decision point.
+ *  - If a choice is already armed, just resolve it (default green).
+ *  - If the current scene auto-advances to a linkScene (no choice at its
+ *    end), play that next scene directly — no point sitting through the
+ *    rest of the bridge clip.
+ *  - Otherwise jump to t-15 of the current clip so the choice arms ~5s later.
+ */
+function _testForward() {
+  if (choiceArmed) {
+    _handleChoice('green');
+    return;
+  }
+  const linkTarget = Branches.getLinkScene(currentScene);
+  if (linkTarget) {
+    _playScene(linkTarget);
+    return;
+  }
+  const video = Player.getVideoElement();
+  if (video && isFinite(video.duration)) {
+    video.currentTime = Math.max(0, video.duration - 15);
+    video.play().catch(() => {});
+  }
+}
+
+/**
+ * Go back one scene. Pops current + previous from watched, replays previous.
+ * Useful for re-testing a different choice from the same branch point.
+ */
+function _testBack() {
+  if (watched.length < 2) return;
+  Choice.hideChoice();
+  Spider.stopCountdown();
+  Player.setChoiceActive(false);
+  choiceArmed = false;
+  _clearListeners();
+  _queue = [];
+
+  watched.pop();              // drop current
+  const prev = watched.pop(); // drop previous so _playScene re-pushes it
+  _playScene(prev);
+}
+
+// In test mode: just reveal #test-skip-end (jumps to t-15). Both skip-back
+// and skip-forward keep their normal ±10s behavior. Scene-level back/forward
+// are still exposed on `window._testBack` / `window._testForward` for the
+// console if you need them.
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.__TEST_MODE) return;
+    const testEnd = document.getElementById('test-skip-end');
+    if (testEnd) {
+      testEnd.style.display = '';
+      testEnd.addEventListener('click', _testForward);
+    }
+    console.log('TEST MODE active — test-skip-end jumps to t-15.');
+  });
+}
+
 // Expose debug helpers to console for local testing
 if (typeof window !== 'undefined') {
   window.startGame = startGame;
   window.resumeGame = resumeGame;
   window._playScene = _playScene;
   window._beginScene = _beginScene;
+  window._testForward = _testForward;
+  window._testBack = _testBack;
 }
 

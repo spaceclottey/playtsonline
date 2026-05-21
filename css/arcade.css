@@ -75,7 +75,9 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 }
 
 #screen-video:hover .skip-btn,
-#screen-video:hover #btn-pause {
+#screen-video:hover #btn-pause,
+#screen-video.controls-visible .skip-btn,
+#screen-video.controls-visible #btn-pause {
   opacity: 1;
   visibility: visible;
 }
@@ -98,7 +100,7 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   font-size: 0.9rem;
   width: 2.1rem;
   height: 2.1rem;
-  border-radius: 0.3rem;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,6 +124,7 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 
 #skip-back { left: 2%; }
 #skip-forward { right: 2%; }
+#test-skip-end { right: calc(2% + 3.5em); }
 
 
 /* Screen state: only .active is visible */
@@ -290,9 +293,6 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   .menu-btn:focus {
     transform: none;
   }
-  #btn-pause, .skip-btn {
-    display: none;
-  }
 }
 
 @media (max-width: 310px) {
@@ -316,9 +316,10 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 #video-main {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   max-height: 100%;
+  background: #000;
 }
 
 #screen-region {
@@ -349,9 +350,28 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 #skip-back { left: 2%; }
 #btn-pause { left: calc(50% - 1.2em); }
 #skip-forward { right: 2%; }
+#test-skip-end { right: calc(2% + 3.5em); }
 
-#btn-green, #btn-red, #spider-region {
+/* Spider eye-art is still a placeholder, so keep that region hidden. */
+#spider-region {
   display: none !important;
+}
+
+/* Wrap that holds the bottom cabinet image + the interactive overlay.
+   The image dictates the wrap's size; #button-region absolute-fills it. */
+#bottom-wrap {
+  position: relative;
+  width: 100%;
+}
+
+#button-region {
+  position: absolute;
+  inset: 0;             /* exactly overlay the bottom image */
+  pointer-events: none; /* let cabinet image receive nothing */
+}
+/* Re-enable pointer events on actual controls only. */
+#button-region > * {
+  pointer-events: auto;
 }
 
 #screen-video:hover .skip-btn,
@@ -431,7 +451,13 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 }
 
 #trailer-back,
-#notify-cancel-btn {
+#notify-cancel-btn,
+#video-back,
+#trailer-back,
+#playmenu-back,
+#resume-cancel-btn,
+#fullscreen-btn,
+#about-back {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -447,31 +473,54 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   align-items: center;
   justify-content: center;
   line-height: 1;
+  width: auto;
+  height: auto;
   transition: opacity 0.15s ease;
 }
 
-#trailer-back {
+/* Fullscreen button is the mirror of #video-back: same chrome, right side. */
+#fullscreen-btn {
+  left: auto;
+  right: 8px;
+}
+
+#trailer-back,
+#video-back,
+#fullscreen-btn,
+#about-back {
   opacity: 0;
   pointer-events: none;
 }
 
 @media (hover: hover) {
-  #screen-trailer:hover #trailer-back {
+  #screen-trailer:hover #trailer-back,
+  #screen-video:hover #video-back,
+  #screen-video:hover #fullscreen-btn,
+  #screen-about:hover #about-back {
     opacity: 1;
     pointer-events: auto;
   }
 }
 
-#screen-trailer.controls-visible #trailer-back {
+#screen-trailer.controls-visible #trailer-back,
+#screen-video.controls-visible #video-back,
+#screen-video.controls-visible #fullscreen-btn,
+#screen-about.controls-visible #about-back {
   opacity: 1;
   pointer-events: auto;
 }
 
 #trailer-back:hover,
-#notify-cancel-btn:hover {
+#notify-cancel-btn:hover,
+#video-back:hover,
+#playmenu-back:hover,
+#resume-cancel-btn:hover,
+#fullscreen-btn:hover,
+#about-back:hover {
   background: rgba(0,0,0,0.8);
   color: #fff;
 }
+
 
 #screen-about {
   background: #020214;
@@ -503,13 +552,32 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   margin: 0 0 2.4em;
 }
 
-.about-lead-space {
-  height: 100%;
-}
+/* Lead/trail spacers — kept zero-height so the typewriter content stays
+   visible. (Old scrolling-marquee design used 100% here.) */
+.about-lead-space { height: 0; }
+.about-trail-space { height: 0; }
 
-.about-trail-space {
-  height: 100%;
+/* ---------------------------------------------------------------------------
+   Demo-end screen — same vibe as the menu (purplish bg, lime accents),
+   same typeface as the about screen.
+   --------------------------------------------------------------------------- */
+#screen-demoend {
+  background: var(--color-screen);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8%;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: clamp(0.7rem, 2.1vw, 1.4rem);
+  line-height: 2;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 18px rgba(170,255,0,0.18);
 }
+#screen-demoend p { margin: 0; max-width: 36em; }
+#screen-demoend em { font-style: italic; color: var(--color-lime); }
+#screen-demoend strong { color: var(--color-lime); font-weight: normal; }
 
 #screen-unfilmed {
   flex-direction: row !important;
@@ -630,24 +698,77 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
    Code prompt screen
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Play sub-menu (NEW GAME / RESUME GAME)
+   --------------------------------------------------------------------------- */
+
+#screen-playmenu {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8%;
+  padding: 6%;
+  position: relative;
+}
+
+.playmenu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: min(90%, 320px);
+}
+
+.playmenu-nav .menu-btn {
+  width: 100%;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Code prompt — styled to match the notify screen
+   --------------------------------------------------------------------------- */
+
 #screen-codeprompt {
   background: var(--color-screen);
   color: var(--color-lime);
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8%;
   padding: 6%;
+  position: relative;
 }
 
 .codeprompt-title {
-  font-size: clamp(0.55rem, 1.6vw, 0.85rem);
+  font-size: clamp(0.7rem, 2vw, 1rem);
   letter-spacing: 0.12em;
   text-align: center;
+  margin: 0;
+  color: var(--color-lime);
 }
 
-.codeprompt-btns {
-  display: flex;
-  gap: 8%;
-  justify-content: center;
+#resume-code-input {
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(170,255,0,0.6);
+  color: var(--color-lime);
+  font-family: var(--font-main);
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  letter-spacing: 0.08em;
+  padding: 0.5em 0.7em;
+  border-radius: 0.3rem;
+  width: min(90%, 280px);
+  text-align: center;
+  outline: none;
+}
+
+#resume-code-input:focus {
+  border-color: var(--color-lime);
+  box-shadow: 0 0 8px rgba(170,255,0,0.3);
+}
+
+#resume-code-btn {
+  width: min(90%, 280px);
 }
 
 /* ---------------------------------------------------------------------------
@@ -735,86 +856,168 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 }
 
 /* ---------------------------------------------------------------------------
-   Choice buttons — green (left) and red (right)
-   PLACEHOLDER: tune % coords by inspecting the PNG.
+   Choice buttons — half-screen overlays on the video during the last 10s.
+   Anchored to #screen-video. Hidden until Choice.showFixed() un-disables them.
+   PLACEHOLDER: art will replace these once the real design lands.
    --------------------------------------------------------------------------- */
 
 .choice-button {
   position: absolute;
-  font-family: var(--font-main);
-  font-size: clamp(0.4rem, 1.2vw, 0.7rem);
-  letter-spacing: 0.08em;
-  border-radius: 50%;
-  width: 10%;
-  aspect-ratio: 1;
-  border: 3px solid rgba(255,255,255,0.3);
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  border: none;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.15s, box-shadow 0.15s;
+  z-index: 8;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  z-index: 10;
+  padding: 0 5%;
+  font-family: var(--font-main);
+  font-size: clamp(0.9rem, 3vw, 2rem);
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1);
+  transition: background 0.15s ease, filter 0.15s ease;
 }
 
+/* Hidden whenever Choice has not enabled the button. */
 .choice-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+  display: none;
 }
 
 .choice-button:not(:disabled):active {
-  transform: scale(0.9);
+  filter: brightness(1.3);
 }
 
+/* Green = left, red = right (matches green/red joystick on cabinet). */
 .choice-button--green {
-  background: radial-gradient(circle at 35% 35%, #66ff33, #228800);
-  box-shadow: 0 0 8px rgba(100,255,0,0.5);
-  top:  55%;
-  left: 30%;
+  left: 0;
+  background: linear-gradient(to right, rgba(0,200,0,0.55), rgba(0,200,0,0.08));
+  animation: throb-soft 1.4s ease-in-out infinite;
 }
-
 .choice-button--green:not(:disabled):hover {
-  box-shadow: 0 0 16px rgba(100,255,0,0.9);
+  background: linear-gradient(to right, rgba(0,255,0,0.78), rgba(0,255,0,0.22));
 }
 
 .choice-button--red {
-  background: radial-gradient(circle at 35% 35%, #ff5555, #880000);
-  box-shadow: 0 0 8px rgba(255,50,50,0.5);
-  top:   55%;
-  right: 30%;
+  right: 0;
+  background: linear-gradient(to left, rgba(255,40,40,0.55), rgba(255,40,40,0.08));
+  animation: throb-soft 1.4s ease-in-out infinite;
 }
-
 .choice-button--red:not(:disabled):hover {
-  box-shadow: 0 0 16px rgba(255,50,50,0.9);
+  background: linear-gradient(to left, rgba(255,60,60,0.78), rgba(255,60,60,0.22));
 }
 
-/* Button label below button (shown when choice is active) */
-.choice-button[data-label]::after {
-  content: attr(data-label);
-  position: absolute;
-  bottom: -130%;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 0.7em;
-  color: var(--color-text);
-  background: rgba(0,0,0,0.7);
-  padding: 0.15em 0.3em;
-  border-radius: 2px;
-  pointer-events: none;
+/* Soft throb while the choice is alive but not urgent. */
+@keyframes throb-soft {
+  0%, 100% { filter: brightness(0.9); }
+  50%      { filter: brightness(1.25); }
 }
+
+/* When time is almost out: WAY faster, brutally bright pulse with an
+   inset glow that screams "decide now." */
+.choice-button.urgent {
+  animation: throb-urgent 0.32s ease-in-out infinite !important;
+}
+@keyframes throb-urgent {
+  0%, 100% {
+    filter: brightness(0.7) saturate(0.9) contrast(1);
+    box-shadow: inset 0 0 0 rgba(255,255,255,0);
+  }
+  50% {
+    filter: brightness(2.6) saturate(2.2) contrast(1.15);
+    box-shadow: inset 0 0 120px rgba(255,255,255,0.55);
+  }
+}
+
+/* While a choice is armed, hide every other video-screen control. */
+#screen-video.choice-active .skip-btn,
+#screen-video.choice-active #btn-pause,
+#screen-video.choice-active #video-back,
+#screen-video.choice-active #fullscreen-btn {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 
 /* ---------------------------------------------------------------------------
    Fullscreen button
    --------------------------------------------------------------------------- */
 
-#fullscreen-btn { display: none !important; }
-
-#fullscreen-btn:hover { opacity: 1; background: rgba(0,0,0,0.8); }
+/* When fullscreened, scale the video element to fill the new viewport. */
+#screen-video:fullscreen,
+#screen-video:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+}
+#screen-video:fullscreen #video-main,
+#screen-video:-webkit-full-screen #video-main {
+  width: 100%;
+  height: 100%;
+}
 
 /* Fullscreen mode: fill the viewport */
 :fullscreen #arcade-container,
 :-webkit-full-screen #arcade-container {
   max-width: 100vmin;
   height: 100vh;
+}
+
+/* ---------------------------------------------------------------------------
+   Touch / no-hover devices (mobile, tablets in touch mode)
+
+   Hover-based control reveal doesn't fire on touch, so all the playback
+   controls would otherwise be permanently invisible. Make them always
+   visible (except during the choice window, which still hides them via
+   the existing #screen-video.choice-active rules).
+
+   Touch targets are also bumped to be tap-friendly (~44px-ish).
+   --------------------------------------------------------------------------- */
+@media (hover: none) {
+  /* Bigger touch targets for the in-video control row. */
+  .skip-btn,
+  #btn-pause {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    padding: 0.6em 0.7em;
+    min-width: 2.6em;
+    min-height: 2.6em;
+  }
+
+  /* Bigger top-corner buttons too. */
+  #video-back,
+  #fullscreen-btn,
+  #trailer-back,
+  #about-back,
+  #notify-cancel-btn,
+  #playmenu-back,
+  #resume-cancel-btn {
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    padding: 0.55em 0.7em;
+  }
+
+  /* Inputs at >=16px so iOS doesn't zoom the viewport on focus. */
+  #notify-email-input,
+  #resume-code-input {
+    font-size: max(16px, clamp(0.9rem, 2.4vw, 1.1rem));
+  }
+
+  /* Bump readability mins for big chunks of text on the screen region. */
+  #about-text {
+    font-size: clamp(0.95rem, 2.5vw, 1.4rem);
+    line-height: 1.7;
+  }
+
+  /* Choice button labels readable on a 390px-wide phone. */
+  .choice-button {
+    font-size: clamp(1.05rem, 3.5vw, 2rem);
+  }
+
+  /* Demo-end copy. */
+  #screen-demoend {
+    font-size: clamp(0.95rem, 2.6vw, 1.4rem);
+  }
 }
