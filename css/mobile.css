@@ -35,8 +35,15 @@
     }
   }
 
-  /* Fullscreen button: slightly larger */
-  #fullscreen-btn {
+  /* In-video controls: keep all of them small & uniform on mobile.
+     This must override the @media (hover: none) bump in arcade.css that
+     otherwise makes them 14.4px on iPhone while #fullscreen-btn stayed
+     at 0.75rem, causing the "fullscreen is small, everything else is huge"
+     mismatch. */
+  #video-back,
+  #fullscreen-btn,
+  .skip-btn,
+  #btn-pause {
     font-size: 0.75rem;
     padding: 0.3em 0.4em;
   }
