@@ -74,22 +74,31 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
   position: relative; /* for absolutely-positioned children (skip buttons etc.) */
 }
 
-/* Hidden by default; revealed via :hover on desktop or .controls-visible on
-   touch devices (tap-to-show, fades after 3s — see arcade.js). */
+/* Hidden by default; revealed via :hover on desktop (only on devices that
+   actually support hover — wrapping in @media (hover: hover) prevents iOS
+   from treating a tap as a stuck-on hover state) or via .controls-visible
+   on touch devices (tap-to-show, fades after 3s — see arcade.js).
+   NOTE: do NOT use `visibility` here — combining visibility with opacity
+   causes iOS Safari to get the transition stuck. Match the pattern used by
+   #video-back / #fullscreen-btn which work reliably on iOS. */
 .skip-btn,
 #btn-pause {
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
-#screen-video:hover .skip-btn,
-#screen-video:hover #btn-pause,
+@media (hover: hover) {
+  #screen-video:hover .skip-btn,
+  #screen-video:hover #btn-pause {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 #screen-video.controls-visible .skip-btn,
 #screen-video.controls-visible #btn-pause {
   opacity: 1;
-  visibility: visible;
   pointer-events: auto;
 }
 
@@ -912,7 +921,6 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 #screen-video.choice-active #video-back,
 #screen-video.choice-active #fullscreen-btn {
   opacity: 0 !important;
-  visibility: hidden !important;
   pointer-events: none !important;
 }
 
