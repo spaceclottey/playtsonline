@@ -789,7 +789,7 @@ const Arcade = {
       roll.style.setProperty('--scroll-start', screen.clientHeight + 'px');
       // Start at the last 30 seconds: use negative animation-delay to skip
       // to 127s into a 157s animation (157 - 30 = 127).
-      roll.style.animationDelay = '-127s';
+      roll.style.animationDelay = '0';
       // Force a fresh animation start by removing then re-adding the
       // .rolling class. Otherwise re-entering the screen wouldn't replay
       // from the top because CSS animations only fire on class-change.
@@ -803,7 +803,7 @@ const Arcade = {
     const audio = document.getElementById('audio-credits');
     if (audio) {
       // Start audio at 127 seconds (last 30 seconds of the 157s track)
-      audio.currentTime = 127;
+      audio.currentTime = 0;
       audio.volume = 0.6;
       if (!_themeMuted) {
         audio.play().catch(() => {});
@@ -815,7 +815,7 @@ const Arcade = {
       Arcade.hideCredits();
       _showScreen('screen-more');
       _creditsReturnTimer = null;
-    }, 33000); // 30s remaining animation + 3s pause = 33s total
+    }, 157000); // 30s remaining animation + 3s pause = 33s total
   },
 
   /**
