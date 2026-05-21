@@ -85,6 +85,18 @@ function _blip(freq, duration) {
 const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify', 'screen-demoend', 'screen-playmenu'];
 
 function _showScreen(id) {
+  // Tear down pseudo-fullscreen whenever we navigate away from the video
+  // screen. Otherwise the overlay's `display: flex !important` wins over
+  // the `display: none` we set below, and the user stays stuck behind a
+  // black fixed overlay while the next screen (e.g. demo-end) is playing
+  // music underneath.
+  if (id !== 'screen-video') {
+    const sv = document.getElementById('screen-video');
+    if (sv) sv.classList.remove('pseudo-fs');
+    document.body.classList.remove('pseudo-fs-active');
+    _setFullscreenIcon(false);
+  }
+
   const screens = document.querySelectorAll('.screen-state');
   screens.forEach((el) => {
     if (el.id === id) {
