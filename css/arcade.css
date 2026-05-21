@@ -989,10 +989,9 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
     line-height: 1.7;
   }
 
-  /* Choice button labels readable on a 390px-wide phone. */
-  .choice-button {
-    font-size: clamp(1.05rem, 3.5vw, 2rem);
-  }
+  /* Choice button labels: only bumped on tablets here.
+     The mobile (<=767px) inline-button restyle in mobile.css handles
+     phones and overrides this. */
 
   /* Demo-end copy. */
   #screen-demoend {

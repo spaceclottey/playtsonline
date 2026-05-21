@@ -19,9 +19,66 @@
     font-size: 0.7rem;
   }
 
-  /* Choice buttons: slightly larger hit target */
+  /* -------------------------------------------------------------------
+     Mobile choice UI — stand-in until the cabinet-dashboard redesign.
+     The desktop design layers two giant half-screen gradient overlays on
+     top of the video. On a 393px phone that approach loses:
+       - text doesn't fit the narrow halves cleanly
+       - the urgent inset white glow can wash out the red completely
+       - the hover-resets in @media (hover: none) below were nuking the
+         gradient on touch (literal "red doesn't appear" bug)
+       - it forces us to exit iOS fullscreen on choice arm, which pauses
+         the video, and re-entering fullscreen on linkScene transitions
+         renders the next clip in the top-left corner
+     So on mobile we drop fullscreen entirely (hide the button) and render
+     the two choices as a pair of compact buttons pinned to the bottom of
+     the video area. The video keeps playing untouched behind them. */
+  #fullscreen-btn {
+    display: none;
+  }
+
   .choice-button {
-    width: 13%;
+    /* Clear the half-screen positioning from the base rule */
+    top: auto;
+    bottom: 6px;
+    width: 47%;
+    height: auto;
+    padding: 0.7em 0.5em;
+    /* Solid cabinet-style chrome instead of half-screen gradient */
+    background: rgba(0,0,0,0.72) !important;
+    background-image: none !important;
+    border: 2px solid;
+    border-radius: 2px;
+    /* Text size that fits comfortably with side-by-side layout */
+    font-size: clamp(0.75rem, 2.6vw, 1.05rem);
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+    /* Kill the soft throb — the buttons are clean & static */
+    animation: none !important;
+  }
+
+  .choice-button--green {
+    left: 2%;
+    right: auto;
+    border-color: rgba(0,220,0,0.9);
+    color: rgba(220,255,220,0.98);
+  }
+  .choice-button--red {
+    left: auto;
+    right: 2%;
+    border-color: rgba(230,80,80,0.95);
+    color: rgba(255,210,210,0.98);
+  }
+
+  /* Urgent state: a subtle brightness pulse instead of the urgent inset
+     white glow (which would wash out red on a small button). */
+  .choice-button.urgent {
+    animation: throb-mobile-urgent 0.4s ease-in-out infinite !important;
+  }
+  @keyframes throb-mobile-urgent {
+    0%, 100% { filter: brightness(0.95); }
+    50%      { filter: brightness(1.35); }
   }
 
   /* Ensure the unfilmed panels stack vertically if the screen is very narrow */
@@ -87,9 +144,13 @@
    --------------------------------------------------------------------------- */
 
 @media (hover: none) {
-  .menu-btn:hover,
-  .choice-button--green:not(:disabled):hover,
-  .choice-button--red:not(:disabled):hover {
+  /* Strip stuck-hover styling on the menu buttons.
+     Earlier this block also reset .choice-button hover state, but on iPad
+     that fired after a tap and removed the gradient entirely (the "red
+     doesn't appear" bug). The mobile choice rules above now style the
+     buttons with solid borders + backgrounds, so a stuck hover is no
+     longer visually destructive. */
+  .menu-btn:hover {
     box-shadow: none;
     background: initial;
     color: initial;
