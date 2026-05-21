@@ -787,6 +787,9 @@ const Arcade = {
       // height, which is much taller than the parent, so without this
       // the credits would take ~30s to scroll into view.
       roll.style.setProperty('--scroll-start', screen.clientHeight + 'px');
+      // Start at the last 10 seconds: use negative animation-delay to skip
+      // to 147s into a 157s animation (157 - 10 = 147).
+      roll.style.animationDelay = '-147s';
       // Force a fresh animation start by removing then re-adding the
       // .rolling class. Otherwise re-entering the screen wouldn't replay
       // from the top because CSS animations only fire on class-change.
@@ -799,19 +802,20 @@ const Arcade = {
     if (audioTheme) audioTheme.pause();
     const audio = document.getElementById('audio-credits');
     if (audio) {
-      audio.currentTime = 0;
+      // Start audio at 147 seconds (last 10 seconds of the 157s track)
+      audio.currentTime = 147;
       audio.volume = 0.6;
       if (!_themeMuted) {
         audio.play().catch(() => {});
       }
     }
-    // Auto-return to MORE menu after credits finish (157s animation + 3s spacer)
+    // Auto-return to MORE menu after credits finish (10s remaining + 3s spacer)
     if (_creditsReturnTimer) clearTimeout(_creditsReturnTimer);
     _creditsReturnTimer = setTimeout(() => {
       Arcade.hideCredits();
       _showScreen('screen-more');
       _creditsReturnTimer = null;
-    }, 160000); // 157s animation + 3s pause = 160s total
+    }, 13000); // 10s remaining animation + 3s pause = 13s total
   },
 
   /**
@@ -825,7 +829,10 @@ const Arcade = {
       _creditsReturnTimer = null;
     }
     const roll = document.querySelector('#screen-credits .credits-roll');
-    if (roll) roll.classList.remove('rolling');
+    if (roll) {
+      roll.classList.remove('rolling');
+      roll.style.animationDelay = '0s'; // Reset animation delay for next playthrough
+    }
     const audio = document.getElementById('audio-credits');
     if (audio) {
       audio.pause();
