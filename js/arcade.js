@@ -174,11 +174,14 @@ function _toggleFullscreen() {
   const target = document.getElementById('screen-video');
   if (!target) return;
 
-  // Mobile: use CSS-only pseudo-fullscreen. iOS native fullscreen hides
-  // our custom controls + choice overlay, pauses on exit, and renders the
-  // next clip in the top-left corner after a linkScene src swap. CSS
-  // fixed-position dodges all three.
-  if (window.matchMedia('(max-width: 767px)').matches) {
+  // Touch devices: use CSS-only pseudo-fullscreen. iOS native fullscreen
+  // hides our custom controls + choice overlay, pauses on exit, and
+  // renders the next clip in the top-left corner after a linkScene src
+  // swap. CSS fixed-position dodges all three.
+  // NOTE: must check (hover: none), not (max-width: 767px) — a phone in
+  // landscape is ~896px wide and would otherwise fall through to the
+  // desktop branch and trigger native fullscreen.
+  if (window.matchMedia('(hover: none)').matches) {
     const entering = !target.classList.contains('pseudo-fs');
     target.classList.toggle('pseudo-fs', entering);
     document.body.classList.toggle('pseudo-fs-active', entering);
