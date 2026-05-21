@@ -436,7 +436,9 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 #playmenu-back,
 #resume-cancel-btn,
 #fullscreen-btn,
-#about-back {
+#about-back,
+#more-back,
+#credits-back {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -557,6 +559,148 @@ html { scrollbar-width: none; -ms-overflow-style: none; }
 #screen-demoend p { margin: 0; max-width: 36em; }
 #screen-demoend em { font-style: italic; color: var(--color-lime); }
 #screen-demoend strong { color: var(--color-lime); font-weight: normal; }
+
+/* ---------------------------------------------------------------------------
+   MORE submenu — same chrome as the main menu so the visual jump is
+   minimal. Hosts the ABOUT / GET NOTIFIED / CREDITS buttons.
+   --------------------------------------------------------------------------- */
+#screen-more {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  gap: 0.5em;
+  padding: 6%;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+#more-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: 100%;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Credits screen — slow Minecraft-style vertical roll. The animation
+   is started/stopped from arcade.js via the .rolling class on
+   .credits-roll so it resets cleanly on each visit to the screen.
+   Duration is 110s, matching the credits audio.
+   --------------------------------------------------------------------------- */
+#screen-credits {
+  background: var(--color-screen);
+  color: var(--color-lime);
+  position: relative;
+  overflow: hidden;
+  /* override flex-centering from .screen-state.active — we want the
+     .credits-roll to fill the screen instead. */
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.credits-roll {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* No bottom / no height — column expands to fit its content, then
+     translateY scrolls the whole column past the visible area. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: clamp(0.7rem, 1.7vw, 1.1rem);
+  line-height: 1.45;
+  padding: 0 1.2em;
+  will-change: transform;
+}
+
+/* Animation: start with the column just below the visible window (top
+   of column at parent's bottom edge), end with it just above (bottom of
+   column at parent's top edge). The --scroll-start var is set by JS to
+   the parent's pixel height so the start position is parent-relative,
+   not column-relative — otherwise on a tall column the credits would
+   take 30+ seconds to enter the visible area. */
+.credits-roll.rolling {
+  animation: credits-scroll 157s linear forwards;
+}
+
+@keyframes credits-scroll {
+  from { transform: translateY(var(--scroll-start, 100%)); }
+  to   { transform: translateY(-100%); }
+}
+
+/* Tiny buffer at the start so the first credit doesn't snap to the edge
+   the instant the screen opens. No trailing buffer needed — the -100%
+   end already scrolls the entire column past the top edge. */
+.credits-roll-spacer {
+  height: 0.5em;
+  flex-shrink: 0;
+}
+
+.credit-section {
+  margin-bottom: 1.8em;
+  flex-shrink: 0;
+}
+
+.credit-role {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  font-size: 1.05em;
+  margin: 0 0 0.45em 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: normal;
+}
+
+.credit-name {
+  margin: 0.15em 0;
+  opacity: 0.92;
+}
+
+/* Section header — marks the visual break between the film credits and
+   the Dooley's Players exec board. The == characters are literal so the
+   delineation reads even without the styling. */
+.credit-divider {
+  margin: 2em 0 1.4em 0;
+  font-size: 1.05em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: normal;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Compact comma-separated list for Special Thanks — keeps a long list of
+   names from inflating the per-person credit time. */
+.credit-thanks-list {
+  margin: 0.15em auto 0 auto;
+  opacity: 0.88;
+  max-width: 22em;
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   .sr-only — keep content in the DOM (so search crawlers index it) but
+   hide it from visual users. Used for the off-screen credits list at
+   the bottom of the page that gives the cast & crew names search-engine
+   visibility while the in-cabinet CREDITS screen is the user-facing UI.
+   --------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 #screen-unfilmed {
   flex-direction: row !important;

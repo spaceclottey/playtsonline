@@ -82,7 +82,7 @@ function _blip(freq, duration) {
 // Screen state management
 // ---------------------------------------------------------------------------
 
-const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify', 'screen-demoend', 'screen-playmenu'];
+const SCREEN_IDS = ['screen-menu', 'screen-about', 'screen-trailer', 'screen-video', 'screen-unfilmed', 'screen-commentary', 'screen-codeprompt', 'screen-notify', 'screen-demoend', 'screen-playmenu', 'screen-more', 'screen-credits'];
 
 function _showScreen(id) {
   // Tear down pseudo-fullscreen whenever we navigate away from the video
@@ -278,24 +278,44 @@ const Arcade = {
         if (_onTrailer) _onTrailer();
       });
 
+    // MORE submenu — main-menu MORE button opens screen-more, which
+    // hosts ABOUT / GET NOTIFIED / CREDITS.
+    document.getElementById('btn-more')
+      && document.getElementById('btn-more').addEventListener('click', () => {
+        _showScreen('screen-more');
+      });
+
+    document.getElementById('more-back')
+      && document.getElementById('more-back').addEventListener('click', () => {
+        _showScreen('screen-menu');
+      });
+
     document.getElementById('btn-about')
       && document.getElementById('btn-about').addEventListener('click', () => {
         Arcade.showAbout();
       });
 
-    // About-screen back button — bail out of the typewriter early.
+    // About-screen back button — bail out of the typewriter early and
+    // return to the MORE submenu (since that's where ABOUT now lives).
     document.getElementById('about-back')
       && document.getElementById('about-back').addEventListener('click', () => {
         if (_aboutAutoScrollFrame) { cancelAnimationFrame(_aboutAutoScrollFrame); _aboutAutoScrollFrame = null; }
         if (_aboutReturnTimer)     { clearTimeout(_aboutReturnTimer);             _aboutReturnTimer = null; }
         if (_aboutTypeTimeout)     { clearTimeout(_aboutTypeTimeout);             _aboutTypeTimeout = null; }
-        _showScreen('screen-menu');
+        _showScreen('screen-more');
       });
 
-    document.getElementById('btn-credits-menu')
-      && document.getElementById('btn-credits-menu').addEventListener('click', () => {
-        document.getElementById('credits-section')
-          && document.getElementById('credits-section').scrollIntoView({ behavior: 'smooth' });
+    // CREDITS — slow Minecraft-style scroll backed by the final 110s
+    // of the Tethersnipe backing track. Respects the global mute state.
+    document.getElementById('btn-credits')
+      && document.getElementById('btn-credits').addEventListener('click', () => {
+        Arcade.showCredits();
+      });
+
+    document.getElementById('credits-back')
+      && document.getElementById('credits-back').addEventListener('click', () => {
+        Arcade.hideCredits();
+        _showScreen('screen-more');
       });
 
     // Resume code prompt
@@ -318,7 +338,7 @@ const Arcade = {
 
     document.getElementById('notify-cancel-btn')
       && document.getElementById('notify-cancel-btn').addEventListener('click', () => {
-        _showScreen('screen-menu');
+        _showScreen('screen-more');
       });
 
     const notifySubmitBtn = document.getElementById('notify-submit-btn');
@@ -493,13 +513,22 @@ const Arcade = {
       audioTheme.volume = 0.11;
       muteBtn.addEventListener('click', () => {
         _themeMuted = !_themeMuted;
+        const audioCredits = document.getElementById('audio-credits');
+        const onCreditsScreen = document.getElementById('screen-credits')?.classList.contains('active');
         if (_themeMuted) {
           audioTheme.pause();
+          if (audioCredits) audioCredits.pause();
           iconMuted.style.display = '';
           iconUnmuted.style.display = 'none';
           muteBtn.setAttribute('aria-label', 'Unmute');
         } else {
-          audioTheme.play().catch(() => {});
+          // Only resume the audio appropriate to the current screen so
+          // we don't suddenly start playing two tracks at once.
+          if (onCreditsScreen && audioCredits) {
+            audioCredits.play().catch(() => {});
+          } else {
+            audioTheme.play().catch(() => {});
+          }
           iconMuted.style.display = 'none';
           iconUnmuted.style.display = '';
           muteBtn.setAttribute('aria-label', 'Mute');
@@ -736,6 +765,62 @@ const Arcade = {
   showCommentary() {
     _closeCommentary(); // reset to menu view
     _showScreen('screen-commentary');
+  },
+
+  /**
+   * Show the credits screen, start the slow vertical scroll, and play the
+   * 157-second credits audio track (synced 1:1 with the scroll duration).
+   * Respects the global mute state — if theme music is muted, credits
+   * audio stays muted too.
+   */
+  showCredits() {
+    _showScreen('screen-credits');
+    const roll = document.querySelector('#screen-credits .credits-roll');
+    const screen = document.getElementById('screen-credits');
+    if (roll && screen) {
+      // Set the animation's start position to exactly the parent's
+      // height in pixels, so the column starts JUST below the visible
+      // window. translateY(100%) on its own refers to the column's own
+      // height, which is much taller than the parent, so without this
+      // the credits would take ~30s to scroll into view.
+      roll.style.setProperty('--scroll-start', screen.clientHeight + 'px');
+      // Force a fresh animation start by removing then re-adding the
+      // .rolling class. Otherwise re-entering the screen wouldn't replay
+      // from the top because CSS animations only fire on class-change.
+      roll.classList.remove('rolling');
+      void roll.offsetHeight; // reflow
+      roll.classList.add('rolling');
+    }
+    // Swap the theme music for the credits track (don't play both).
+    const audioTheme = document.getElementById('audio-theme');
+    if (audioTheme) audioTheme.pause();
+    const audio = document.getElementById('audio-credits');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.volume = 0.6;
+      if (!_themeMuted) {
+        audio.play().catch(() => {});
+      }
+    }
+  },
+
+  /**
+   * Hide the credits scroll — stop animation, pause audio, reset state
+   * so the next visit replays cleanly from the top. Restore theme music
+   * if it was playing before.
+   */
+  hideCredits() {
+    const roll = document.querySelector('#screen-credits .credits-roll');
+    if (roll) roll.classList.remove('rolling');
+    const audio = document.getElementById('audio-credits');
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    const audioTheme = document.getElementById('audio-theme');
+    if (audioTheme && !_themeMuted) {
+      audioTheme.play().catch(() => {});
+    }
   },
 
   /**

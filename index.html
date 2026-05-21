@@ -29,11 +29,11 @@
     gtag('config', 'G-JGC4DNDYWE');
   </script>
 
-  <link rel="stylesheet" href="css/main.css?v=20260521a">
-  <link rel="stylesheet" href="css/arcade.css?v=20260521a">
-  <link rel="stylesheet" href="css/spider.css?v=20260521a">
-  <link rel="stylesheet" href="css/choice.css?v=20260521a">
-  <link rel="stylesheet" href="css/mobile.css?v=20260521a">
+  <link rel="stylesheet" href="css/main.css?v=20260521d">
+  <link rel="stylesheet" href="css/arcade.css?v=20260521d">
+  <link rel="stylesheet" href="css/spider.css?v=20260521d">
+  <link rel="stylesheet" href="css/choice.css?v=20260521d">
+  <link rel="stylesheet" href="css/mobile.css?v=20260521d">
 </head>
 <body>
 
@@ -67,11 +67,171 @@
           <nav id="menu-nav" aria-label="Main menu">
             <button id="btn-play"    class="menu-btn">PLAY</button>
             <button id="btn-trailer" class="menu-btn">TRAILER</button>
-            <button id="btn-about"   class="menu-btn">ABOUT</button>
+            <button id="btn-more"    class="menu-btn">MORE</button>
             <button id="btn-resume"  class="menu-btn" style="display:none">RESUME</button>
-            <button id="btn-credits-menu" class="menu-btn" style="display:none">CREDITS</button>
-            <button id="btn-notify" class="menu-btn menu-btn--notify">GET NOTIFIED</button>
           </nav>
+        </div>
+
+        <!-- MORE submenu — ABOUT / GET NOTIFIED / CREDITS -->
+        <div id="screen-more" class="screen-state">
+          <nav id="more-nav" aria-label="More menu">
+            <button id="btn-about"   class="menu-btn">ABOUT</button>
+            <button id="btn-notify"  class="menu-btn menu-btn--notify">GET NOTIFIED</button>
+            <button id="btn-credits" class="menu-btn">CREDITS</button>
+          </nav>
+          <button id="more-back" aria-label="Back to main menu" title="Back to main menu">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Credits scroll screen — Minecraft-style vertical roll. The audio
+             plays the final 157 seconds of the Tethersnipe backing track,
+             timed to match the 157-second scroll duration. -->
+        <div id="screen-credits" class="screen-state">
+          <div class="credits-roll">
+            <div class="credits-roll-spacer"></div>
+            <div class="credit-section">
+              <h3 class="credit-role">Director</h3>
+              <p class="credit-name">Space Lutterodt-Clottey</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Creative Director</h3>
+              <p class="credit-name">Nellie Gregg</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Written & Performed By</h3>
+              <p class="credit-name">Alexander Kauffman</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Written & Performed By</h3>
+              <p class="credit-name">Tracy Li</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Written & Performed By</h3>
+              <p class="credit-name">Emma Gordon</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Production Manager</h3>
+              <p class="credit-name">Marjory Ignacio-Almazan</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Stage Manager</h3>
+              <p class="credit-name">Jani Carr</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Stage Manager</h3>
+              <p class="credit-name">Lauren Stephenson</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Sound Design & Operation</h3>
+              <p class="credit-name">Sarinah Reichle</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Props</h3>
+              <p class="credit-name">Sam Perry</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Lighting</h3>
+              <p class="credit-name">Alex Lee</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Costume</h3>
+              <p class="credit-name">Lucy Shainin</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Set</h3>
+              <p class="credit-name">Krisha Jain</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Music</h3>
+              <p class="credit-name">Ishaan Jain</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Theme Rendering</h3>
+              <p class="credit-name">Vi Eicher</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Cinematography</h3>
+              <p class="credit-name">Mathew Paulin</p>
+              <p class="credit-name">Jaelyn Dudley</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Assistant Cinematography</h3>
+              <p class="credit-name">Von Stroud</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Editor</h3>
+              <p class="credit-name">Alexander Kauffman</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Intimacy Coordination</h3>
+              <p class="credit-name">Kayla Ibarra</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Photography</h3>
+              <p class="credit-name">Indigo Shi</p>
+            </div>
+            
+            <div class="credit-divider">== Dooley's Players 2025-2026 Executive Board ==</div>
+            <div class="credit-section">
+              <h3 class="credit-role">Artistic Director</h3>
+              <p class="credit-name">Morgan Schatmeyer</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Production Manager</h3>
+              <p class="credit-name">John Cross</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Treasurer</h3>
+              <p class="credit-name">Russell DeLecuona</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Secretary</h3>
+              <p class="credit-name">Kyra Bomberger</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Publicity Manager</h3>
+              <p class="credit-name">Tai Jackson</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Special Projects Coordinator</h3>
+              <p class="credit-name">Marjory Ignacio-Almazán</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Outreach Coordinator</h3>
+              <p class="credit-name">Olivia Stanley</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Mediation Officer</h3>
+              <p class="credit-name">Stephanie Kola-Ogunbule</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Marketing Assistant</h3>
+              <p class="credit-name">Jane Minus</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">First-Year Representative</h3>
+              <p class="credit-name">Nicole Neal</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">Oxford Representative</h3>
+              <p class="credit-name">Daniel Keane</p>
+            </div>
+            <div class="credit-section">
+              <h3 class="credit-role">International Representative</h3>
+              <p class="credit-name">Tracy Li</p>
+            </div>
+
+            <div class="credit-section credit-section--thanks">
+              <h3 class="credit-role">Special Thanks</h3>
+              <p class="credit-thanks-list">Natalie Garcia-Ramos, Katie Passanisi, Terence Lee, Zachary Issenberg, Caden Carver-Longley, Hanmer Hanbury, Frank Gaertner, Josie Tolin, Sally Chen, Ben Soffer</p>
+            </div>
+
+            <div class="credits-roll-spacer"></div>
+          </div>
+          <button id="credits-back" aria-label="Back to MORE menu" title="Back">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
         </div>
 
         <!-- About screen -->
@@ -272,9 +432,12 @@
   </section>
 
   <!-- =====================================================================
-       SECTION 2: Credits (always reachable by scrolling)
+       SECTION 2: Credits — kept in the DOM (off-screen, NOT display:none)
+       so search engines index the cast & crew names. Users access the
+       scrolling credits via MORE → CREDITS in the arcade-cabinet UI;
+       this section is never visually displayed.
        ===================================================================== -->
-  <section id="credits-section" style="display:none" aria-label="Credits">
+  <section id="credits-section" class="sr-only" aria-label="Credits">
     <div id="credits-text">
       <h2>TETHERSNIPE</h2>
       <ul>
@@ -299,7 +462,28 @@
         <li>Editor: Alexander Kauffman</li>
         <li>Intimacy Coordination: Kayla Ibarra</li>
         <li>Photography: Indigo Shi</li>
-        <li>The Dooleys Players 2025-26 board</li>
+        <li>Artistic Director: Morgan Schatmeyer</li>
+        <li>Production Manager: John Cross</li>
+        <li>Treasurer: Russell DeLecuona</li>
+        <li>Secretary: Kyra Bomberger</li>
+        <li>Publicity Manager: Tai Jackson</li>
+        <li>Special Projects Coordinator: Marjory Ignacio-Almazán</li>
+        <li>Outreach Coordinator: Olivia Stanley</li>
+        <li>Mediation Officer: Stephanie Kola-Ogunbule</li>
+        <li>Marketing Assistant: Jane Minus</li>
+        <li>First-Year Representative: Nicole Neal</li>
+        <li>Oxford Representative: Daniel Keane</li>
+        <li>International Representative: Tracy Li</li>
+        <li>Special Thanks: Natalie Garcia-Ramos</li>
+        <li>Special Thanks: Katie Passanisi</li>
+        <li>Special Thanks: Terence Lee</li>
+        <li>Special Thanks: Zachary Issenberg</li>
+        <li>Special Thanks: Caden Carver-Longley</li>
+        <li>Special Thanks: Hanmer Hanbury</li>
+        <li>Special Thanks: Frank Gaertner</li>
+        <li>Special Thanks: Josie Tolin</li>
+        <li>Special Thanks: Sally Chen</li>
+        <li>Special Thanks: Ben Soffer</li>
       </ul>
     </div>
   </section>
@@ -338,6 +522,7 @@
        ===================================================================== -->
   <audio id="audio-menu-beep"   src="assets/audio/menu_beep.mp3"          preload="auto" aria-hidden="true"></audio>
   <audio id="audio-theme"       src="assets/audio/tethersnipe_theme_full.m4a" preload="auto" aria-hidden="true"></audio>
+  <audio id="audio-credits"     src="assets/audio/credits_audio.mp3?v=20260521d" preload="auto" aria-hidden="true"></audio>
   <audio id="audio-eye-close"   src="assets/audio/eye_close.mp3"           preload="none" aria-hidden="true"></audio>
   <audio id="audio-decision-10" src="assets/audio/decision_noise_10s.mp3"  preload="none" aria-hidden="true"></audio>
   <audio id="audio-decision-25" src="assets/audio/decision_noise_25s.mp3"  preload="none" aria-hidden="true"></audio>
@@ -345,13 +530,13 @@
   <!-- =====================================================================
        Scripts (order matters — branches.js must come before main.js)
        ===================================================================== -->
-  <script src="js/branches.js?v=20260521a"></script>
-  <script src="js/save.js?v=20260521a"></script>
-  <script src="js/player.js?v=20260521a"></script>
-  <script src="js/spider.js?v=20260521a"></script>
-  <script src="js/choice.js?v=20260521a"></script>
-  <script src="js/arcade.js?v=20260521a"></script>
-  <script src="js/main.js?v=20260521a"></script>
+  <script src="js/branches.js?v=20260521d"></script>
+  <script src="js/save.js?v=20260521d"></script>
+  <script src="js/player.js?v=20260521d"></script>
+  <script src="js/spider.js?v=20260521d"></script>
+  <script src="js/choice.js?v=20260521d"></script>
+  <script src="js/arcade.js?v=20260521d"></script>
+  <script src="js/main.js?v=20260521d"></script>
 
 </body>
 </html>
