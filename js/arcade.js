@@ -329,20 +329,24 @@ const Arcade = {
         if (typeof Player !== 'undefined') Player.skipBack();
       });
 
+    // SVG path data for the play/pause icon swap.
+    const PAUSE_PATH = 'M6 5h4v14H6V5zm8 0h4v14h-4V5z';
+    const PLAY_PATH  = 'M8 5v14l11-7z';
     document.getElementById('btn-pause')
       && document.getElementById('btn-pause').addEventListener('click', () => {
         const btn = document.getElementById('btn-pause');
         if (!btn || typeof Player === 'undefined') return;
         const video = Player.getVideoElement();
         if (!video) return;
+        const iconPath = btn.querySelector('#btn-pause-icon path');
 
         if (video.paused) {
           Player.resume();
-          btn.textContent = '⏸';
+          if (iconPath) iconPath.setAttribute('d', PAUSE_PATH);
           btn.setAttribute('aria-label', 'Pause');
         } else {
           Player.pause();
-          btn.textContent = '▶';
+          if (iconPath) iconPath.setAttribute('d', PLAY_PATH);
           btn.setAttribute('aria-label', 'Resume');
         }
       });
@@ -545,8 +549,9 @@ const Arcade = {
    */
   showScreen(id) {
     _showScreen(id);
-    const btn = document.getElementById('btn-pause');
-    if (btn) btn.textContent = '⏸';
+    // Reset pause-button icon to the "pause" shape (clip is playing).
+    const iconPath = document.querySelector('#btn-pause-icon path');
+    if (iconPath) iconPath.setAttribute('d', 'M6 5h4v14H6V5zm8 0h4v14h-4V5z');
   },
 
   /**

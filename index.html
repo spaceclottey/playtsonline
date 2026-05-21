@@ -98,12 +98,20 @@
           <button id="video-back"   aria-label="Back to main menu" title="Back to main menu">
             <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
           </button>
-          <button id="skip-back"    class="skip-btn" aria-label="Skip back 10 seconds"    title="-10s">◄◄</button>
-          <button id="btn-pause"    class="skip-btn" aria-label="Pause"                   title="Play / pause">⏸</button>
-          <button id="skip-forward" class="skip-btn" aria-label="Skip forward 10 seconds" title="+10s">►►</button>
+          <button id="skip-back"    class="skip-btn" aria-label="Skip back 10 seconds"    title="-10s">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          </button>
+          <button id="btn-pause"    class="skip-btn" aria-label="Pause"                   title="Play / pause">
+            <svg id="btn-pause-icon" viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg>
+          </button>
+          <button id="skip-forward" class="skip-btn" aria-label="Skip forward 10 seconds" title="+10s">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+          </button>
           <!-- Test-only: skip to t-15 so the choice arms ~5s later. JS reveals
                this only in test mode (?test=1 / localhost). -->
-          <button id="test-skip-end" class="skip-btn" aria-label="Test: skip to end of scene" title="TEST: skip to end of scene" style="display:none">►|</button>
+          <button id="test-skip-end" class="skip-btn" aria-label="Test: skip to end of scene" title="TEST: skip to end of scene" style="display:none">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M4 18l8.5-6L4 6v12zm10 0h2V6h-2v12z"/></svg>
+          </button>
           <button id="fullscreen-btn" aria-label="Toggle fullscreen" title="Fullscreen">
             <svg viewBox="0 0 24 24" fill="currentColor" width="1.1em" height="1.1em" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
           </button>

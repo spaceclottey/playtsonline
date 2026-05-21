@@ -35,8 +35,8 @@ let _beepInterval = null;
 // ---------------------------------------------------------------------------
 
 const SCENE_LABELS = {
-  cup:                        'Take the cup',
-  paperTowel:                 'Take the paper towel',
+  cup:                        'Use a cup',
+  paperTowel:                 'Use a paper towel',
   NikoActsAsLucia:            'Niko acts as Lucia',
   AngieActsAsLucia:           'Angie acts as Lucia',
   giveCigarrette:             'Give the cigarette',
